@@ -43,18 +43,19 @@ root.addEventListener('click',e=>{
 });
 back.onclick=()=>show(i-1,true);
 
-root.querySelector('#submit').onclick=async()=>{
+root.querySelector('#submit').onclick=async(ev)=>{
+  const btn=ev.currentTarget; if(btn.disabled) return;
   const name=root.querySelector('#name').value.trim(), phone=root.querySelector('#phone').value.trim(), err=root.querySelector('#err');
   if(!name||phone.replace(/\D/g,'').length<8||!root.querySelector('#consent').checked){
     err.style.display='block';err.textContent='Please add your name, a valid number and tick the consent box.';return;
   }
-  err.style.display='none';
+  err.style.display='none'; btn.disabled=true; btn.textContent='Sending…';
   Object.assign(ans,{name,phone,when:root.querySelector('#when').value,tier:window.scoreLead(ans),
     submittedAt:new Date().toISOString(),source:new URLSearchParams(location.search).toString()||'direct'});
   track('QualifyComplete',{tier:ans.tier});
   try{window.fbq&&fbq('track','Lead',{content_category:ans.goal,value:0,currency:'SGD'})}catch(_){}
   if(S.leadEndpoint){
-    try{await fetch(S.leadEndpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(ans)})}catch(_){}
+    try{await Promise.race([fetch(S.leadEndpoint,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(ans)}),new Promise(r=>setTimeout(r,4000))])}catch(_){}
   }
   const lines=Q.map(q=>`${q.title.replace(/\?$/,'')}: ${ans[q.key]||'-'}`).join('\n');
   root.querySelector('#waBtn').href='https://wa.me/'+S.whatsapp+'?text='+encodeURIComponent(`Hi ${S.name.split(' ')[0]}, I just filled in the form.\n${lines}\nName: ${name}`);
