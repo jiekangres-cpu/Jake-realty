@@ -14,8 +14,27 @@
 fbq('init',id);fbq('track','PageView');})();
 </script>
 </head>
-<body>
+<body class="has-side">
 <div id="scrollbar"></div>
+
+<aside class="side">
+  <a class="logo" href="#top">JAKE <span>YEO</span></a>
+  <p class="sub">Singapore property advisor. Pricing data, exit planning, clear next steps.</p>
+  <nav id="sidenav">
+    <a href="#top">Home</a>
+    <a href="#problem">The problem</a>
+    <a href="#capital">How I think</a>
+    <a href="#case">Case study</a>
+    <a href="#approach">How I work</a>
+    <a href="#about">About</a>
+    <a href="#proof">Client feedback</a>
+    <a href="#qualify">Check my options</a>
+  </nav>
+  <div class="foot">
+    <a class="btn sm" href="#qualify" style="text-align:center">Check my options</a>
+    <small><span data-agency></span> · CEA <span data-reg></span></small>
+  </div>
+</aside>
 
 <header class="nav"><div class="wrap">
   <a class="logo" href="#top">JAKE <span>YEO</span></a>
@@ -129,6 +148,11 @@ function onScroll(){
   cta.classList.toggle('show',past && fr.top>window.innerHeight*.8);
 }
 addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+// highlight current section in the sidebar
+const links=[...document.querySelectorAll('#sidenav a')];
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('section.screen').forEach(sec=>so.observe(sec));
 </script>
 </body>
 </html>
