@@ -151,3 +151,5 @@ table.kv td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}ta
 .stat{display:inline-block;margin-top:6px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:2px 9px}
 .stat.in{background:#c9a227;color:#fff}.stat.repl{background:#e7e2d6;color:var(--mute)}.stat.oneoff{background:#e7e2d6;color:var(--mute)}.stat.check{background:#fff;color:#8a6a1b;border:1px dashed #c9a227}
 .mlist .note{font-size:.8rem;margin-top:4px;font-style:normal}
+
+.asof{display:inline-block;margin:-4px 0 14px;font-size:.82rem;font-weight:600;color:var(--gold);background:#fbf3d6;border:1px solid #e6d79a;border-radius:99px;padding:4px 12px}
