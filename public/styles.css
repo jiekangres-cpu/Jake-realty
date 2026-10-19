@@ -175,3 +175,7 @@ dl.ba dd{margin:0}
 .switch input:checked + .track{background:#c9a227}.switch input:checked + .track i{transform:translateX(20px)}
 .switch input:focus-visible + .track{outline:2px solid var(--ink);outline-offset:2px}
 .swtxt{display:flex;flex-direction:column;line-height:1.3}.swtxt b{font-size:.95rem}.swtxt em{font-style:normal;font-size:.8rem;color:var(--mute)}
+
+figure.trk{margin:20px 0 0;max-width:820px}
+figure.trk img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;background:#fff}
+figure.trk figcaption{font-size:.82rem;color:var(--mute);margin-top:8px}
