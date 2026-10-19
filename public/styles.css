@@ -95,7 +95,7 @@ aside.side{display:none}
 #ppiChart svg{display:block;touch-action:pan-y}
 .gl{stroke:var(--line);stroke-width:1}.ax{fill:var(--mute);font-size:11px;font-family:inherit}
 .pl{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
-.ml{stroke-width:1.5;opacity:.45}.ml.c{stroke:#b94a4a}.ml.w{stroke:var(--ok)}
+.ml{stroke-width:2;opacity:.7}.ml.c{stroke:#b94a4a}.ml.w{stroke:var(--ok)}
 .md{stroke:#fff;stroke-width:1.5}.md.c{fill:#b94a4a}.md.w{fill:var(--ok)}
 .xh{stroke:var(--mute);stroke-width:1;stroke-dasharray:3 3}.an{fill:var(--ink);font-size:11px;font-weight:600;font-family:inherit}
 .tip{position:absolute;z-index:5;max-width:min(340px,92%);background:var(--ink);color:#faf8f4;border-radius:8px;padding:10px 12px;font-size:.8rem;line-height:1.4;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.25)}
@@ -120,3 +120,12 @@ table.kv td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}ta
 /* floating button sits bottom-right so it never covers centred content */
 #stickyCta,body.has-side #stickyCta{left:auto;right:20px;transform:translateY(120px)}
 #stickyCta.show,body.has-side #stickyCta.show{transform:none}
+
+/* numbered markers */
+.bd circle{stroke:#fff;stroke-width:1.5}.bd.c circle{fill:#b94a4a}.bd.w circle{fill:var(--ok)}
+.bd text{fill:#fff;font-size:9.5px;font-weight:700;font-family:inherit;pointer-events:none}
+.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;font-size:.75rem;font-weight:700}
+.num.c{background:#b94a4a}.num.w{background:var(--ok)}
+.mlist li{grid-template-columns:28px 100px 1fr}
+@media(max-width:600px){.mlist li{grid-template-columns:28px 1fr}.mlist time{grid-column:2}.mlist li>div{grid-column:1 / -1}}
+.tip .tm b{display:block;font-weight:600}
