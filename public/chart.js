@@ -39,7 +39,7 @@ function badgeShape(m,x,y,color){
   return `<circle cx="${x}" cy="${y}" r="${BR}" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
 }
 function list(){
-  document.getElementById('measureList').innerHTML=M.filter(m=>!active||m.fam===active).map(m=>{const f=FAM[m.fam];
+  document.getElementById('measureList').innerHTML=M.filter(m=>!active||m.fam===active).reverse().map(m=>{const f=FAM[m.fam];
     const ring=m.dir==='E', dia=m.dir==='R';
     return `<li><span class="num${ring?' ring':''}${dia?' dia':''}" style="${ring?`border-color:${f.color};color:${f.color}`:`background:${f.color}`}"><b>${m.n}</b></span><time>${fmtDate(m)}</time><div><b>${esc(m.short)}</b><span class="fam" style="color:${f.color}">${f.name} · ${DIR[m.dir]}</span><p>${esc(m.detail)}</p></div></li>`}).join('');
 }
