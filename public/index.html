@@ -53,8 +53,9 @@ fbq('init',id);fbq('track','PageView');})();
   <div class="eyebrow rv">Since 2005</div>
   <h2 class="rv d1">Every cooling measure and rule change, on the URA price index.</h2>
   <p class="asof rv d1">Data is accurate as of 20th October 2026</p>
-  <p class="lead rv d2" style="margin-top:0">Each numbered line is a government measure, coloured by type: TDSR, ABSD, BSD, SSD, loan limits, the en bloc unit cap and floor-area rules. Filled markers tighten the market, rings ease it, diamonds change the rules. A gold ring marks measures still in force today. Hover or tap a number, or tap a colour to filter.</p>
+  <p class="lead rv d2" style="margin-top:0">Each numbered line is a government measure, coloured by type: TDSR, ABSD, BSD, SSD, loan limits, the en bloc unit cap and floor-area rules. Coloured markers tighten the market, green markers ease it, and diamonds change the rules. A gold ring marks measures still in force today, and the switch below shows only those. Hover or tap a number, or tap a colour to filter.</p>
   <div class="chartcard rv d3">
+    <label class="switch"><input type="checkbox" id="inForceSwitch"><span class="track"><i></i></span><span class="swtxt"><b>Show only measures in force today</b><em id="inCount"></em></span></label>
     <div class="legend"><span><i class="lg line"></i>Private residential price index (2009-Q1 = 100)</span><span><i class="sh f"></i>Tightens</span><span><i class="sh r"></i>Eases</span><span><i class="sh d"></i>Rule change</span></div>
     <div id="famLegend" class="famlegend"></div>
     <div id="ppiChart"></div>
