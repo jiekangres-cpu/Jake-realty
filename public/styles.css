@@ -129,3 +129,16 @@ table.kv td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}ta
 .mlist li{grid-template-columns:28px 100px 1fr}
 @media(max-width:600px){.mlist li{grid-template-columns:28px 1fr}.mlist time{grid-column:2}.mlist li>div{grid-column:1 / -1}}
 .tip .tm b{display:block;font-weight:600}
+
+/* chart v3: families */
+.sh{display:inline-block;vertical-align:middle;margin-right:6px;width:12px;height:12px;background:var(--mute)}
+.sh.f{border-radius:50%}.sh.r{border-radius:50%;background:#fff;border:2.5px solid var(--mute)}.sh.d{transform:rotate(45deg) scale(.8)}
+.famlegend{display:flex;flex-wrap:wrap;gap:8px;margin:0 4px 10px}
+.chip{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:.8rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:5px 11px;cursor:pointer}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip.on{border-color:var(--ink);background:#fff;font-weight:600}.famlegend.filtered .chip:not(.on){opacity:.5}
+.bn{font-size:9.5px;font-weight:700;font-family:inherit;pointer-events:none}
+.num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;color:#fff;font-size:.75rem;box-sizing:border-box}
+.num b{font-weight:700;transform:none}.num.ring{background:#fff;border:2.5px solid}.num.dia{border-radius:4px;transform:rotate(45deg) scale(.82)}.num.dia b{display:block;transform:rotate(-45deg)}
+.mlist .fam{display:block;font-size:.76rem;font-weight:600;letter-spacing:.02em;margin:1px 0 2px}
+.tip .tm{border-left:3px solid}.tip .tm span{opacity:.75}
