@@ -142,3 +142,12 @@ table.kv td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}ta
 .num b{font-weight:700;transform:none}.num.ring{background:#fff;border:2.5px solid}.num.dia{border-radius:4px;transform:rotate(45deg) scale(.82)}.num.dia b{display:block;transform:rotate(-45deg)}
 .mlist .fam{display:block;font-size:.76rem;font-weight:600;letter-spacing:.02em;margin:1px 0 2px}
 .tip .tm{border-left:3px solid}.tip .tm span{opacity:.75}
+
+/* in-force highlight */
+.chip .halo{width:10px;height:10px;border-radius:50%;border:2px solid #c9a227;background:#fff;box-sizing:border-box}
+.chip.inforce.on{background:#fbf3d6;border-color:#c9a227}
+.mlist li.st-in{background:#fbf5df;border-left:4px solid #c9a227}
+.mlist li.st-repl{opacity:.72}
+.stat{display:inline-block;margin-top:6px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:2px 9px}
+.stat.in{background:#c9a227;color:#fff}.stat.repl{background:#e7e2d6;color:var(--mute)}.stat.oneoff{background:#e7e2d6;color:var(--mute)}.stat.check{background:#fff;color:#8a6a1b;border:1px dashed #c9a227}
+.mlist .note{font-size:.8rem;margin-top:4px;font-style:normal}

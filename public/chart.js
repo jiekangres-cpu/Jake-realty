@@ -20,7 +20,8 @@ const P=window.PPI.map(([q,v])=>{const [y,n]=q.split('-Q');return {q,v,t:+y+(+n-
 const yearFrac=d=>{const a=new Date(d+'T00:00:00');return a.getFullYear()+(a-new Date(a.getFullYear(),0,1))/(365.25*864e5)};
 const fmtDate=m=>m.label||new Date(m.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 const M=window.MEASURES.map(m=>({...m,t:yearFrac(m.date)})).filter(m=>m.t>=T0).sort((a,b)=>a.t-b.t).map((m,i)=>({...m,n:i+1}));
-let active=null; // family filter
+let active=null, onlyIn=false; // filters: family, in-force only
+const show=m=>(!active||m.fam===active)&&(!onlyIn||m.status==='in');
 
 const st=window.PPI_STATS;
 if(st){
@@ -31,17 +32,20 @@ if(st){
 // legend (also a filter)
 const lg=document.getElementById('famLegend');
 lg.innerHTML=Object.entries(FAM).filter(([k])=>M.some(m=>m.fam===k)).map(([k,f])=>`<button type="button" class="chip" data-f="${k}"><i style="background:${f.color}"></i>${f.name}</button>`).join('');
-lg.addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; active=active===b.dataset.f?null:b.dataset.f;
-  lg.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.f===active)); lg.classList.toggle('filtered',!!active); list(); draw();});
+lg.insertAdjacentHTML('beforeend','<button type="button" class="chip inforce" data-in="1"><i class="halo"></i>In force today</button>');
+lg.addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return;
+  if(b.dataset.in){onlyIn=!onlyIn; b.classList.toggle('on',onlyIn);} else {active=active===b.dataset.f?null:b.dataset.f; lg.querySelectorAll('.chip[data-f]').forEach(c=>c.classList.toggle('on',c.dataset.f===active));}
+  lg.classList.toggle('filtered',!!active); list(); draw();});
 function badgeShape(m,x,y,color){
   if(m.dir==='R') return `<polygon points="${x},${y-BR-1.5} ${x+BR+1.5},${y} ${x},${y+BR+1.5} ${x-BR-1.5},${y}" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
   if(m.dir==='E') return `<circle cx="${x}" cy="${y}" r="${BR}" fill="#fff" stroke="${color}" stroke-width="2.5"/>`;
   return `<circle cx="${x}" cy="${y}" r="${BR}" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
 }
 function list(){
-  document.getElementById('measureList').innerHTML=M.filter(m=>!active||m.fam===active).reverse().map(m=>{const f=FAM[m.fam];
+  document.getElementById('measureList').innerHTML=M.filter(show).reverse().map(m=>{const f=FAM[m.fam];
     const ring=m.dir==='E', dia=m.dir==='R';
-    return `<li><span class="num${ring?' ring':''}${dia?' dia':''}" style="${ring?`border-color:${f.color};color:${f.color}`:`background:${f.color}`}"><b>${m.n}</b></span><time>${fmtDate(m)}</time><div><b>${esc(m.short)}</b><span class="fam" style="color:${f.color}">${f.name} · ${DIR[m.dir]}</span><p>${esc(m.detail)}</p></div></li>`}).join('');
+    const stLabel=m.status==='in'?'In force today':m.status==='repl'?`Replaced by #${m.by}`:m.status==='oneoff'?'One-off, no longer applies':'Status to confirm';
+    return `<li class="st-${m.status}"><span class="num${ring?' ring':''}${dia?' dia':''}" style="${ring?`border-color:${f.color};color:${f.color}`:`background:${f.color}`}"><b>${m.n}</b></span><time>${fmtDate(m)}</time><div><b>${esc(m.short)}</b><span class="fam" style="color:${f.color}">${f.name} · ${DIR[m.dir]}</span><p>${esc(m.detail)}</p><span class="stat ${m.status}">${stLabel}</span>${m.note?`<p class="note">${esc(m.note)}</p>`:''}</div></li>`}).join('');
 }
 list();
 
@@ -52,7 +56,7 @@ const valAt=t=>{ if(t<=P[0].t) return P[0].v; if(t>=P[P.length-1].t) return P[P.
 function draw(){
   W=host.clientWidth||320; H=W<520?420:390;
   sx=t=>ml+(t-T0)/(T1-T0)*(W-ml-mr);
-  const vis=M.filter(m=>!active||m.fam===active), gap=BR*2+3, lastX=[];
+  const vis=M.filter(show), gap=BR*2+3, lastX=[];
   vis.forEach(m=>{m.x=sx(m.t); let l=0; while(lastX[l]!==undefined && m.x-lastX[l]<gap) l++; lastX[l]=m.x; m.lane=l;});
   const lanes=Math.max(1,...vis.map(m=>m.lane+1));
   mt=10+lanes*(BR*2+4);
@@ -63,7 +67,7 @@ function draw(){
   const path=P.map((p,i)=>(i?'L':'M')+sx(p.t).toFixed(1)+' '+sy(p.v).toFixed(1)).join(' ');
   const by=m=>10+BR+m.lane*(BR*2+4);
   const lines=vis.map(m=>`<line x1="${m.x}" x2="${m.x}" y1="${by(m)}" y2="${H-mb}" stroke="${FAM[m.fam].color}" stroke-width="2" opacity=".75"/>`).join('');
-  const badges=vis.map(m=>`<g>${badgeShape(m,m.x,by(m),FAM[m.fam].color)}<text x="${m.x}" y="${by(m)+3.5}" text-anchor="middle" class="bn" fill="${m.dir==='E'?FAM[m.fam].color:'#fff'}">${m.n}</text></g>`).join('');
+  const badges=vis.map(m=>`<g>${m.status==='in'?`<circle cx="${m.x}" cy="${by(m)}" r="${BR+4}" fill="none" stroke="#c9a227" stroke-width="2"/>`:''}${badgeShape(m,m.x,by(m),FAM[m.fam].color)}<text x="${m.x}" y="${by(m)+3.5}" text-anchor="middle" class="bn" fill="${m.dir==='E'?FAM[m.fam].color:'#fff'}">${m.n}</text></g>`).join('');
   const last=P[P.length-1], pk=st&&P.find(p=>p.q===st.peak[1]);
   const marks=(pk?`<text x="${sx(pk.t)}" y="${sy(pk.v)-8}" class="an" text-anchor="middle">Peak ${pk.v}</text>`:'')+
     `<text x="${sx(last.t)-2}" y="${sy(last.v)-8}" class="an" text-anchor="end">${last.v}</text>`;
@@ -75,7 +79,7 @@ function draw(){
     const same=near?vis.filter(m=>Math.abs(m.x-near.x)<BR+4):[];
     const q=P.reduce((a,b)=>Math.abs(b.t-t)<Math.abs(a.t-t)?b:a);
     xh.setAttribute('x1',sx(q.t)); xh.setAttribute('x2',sx(q.t)); xh.style.display='';
-    tip.innerHTML=`<div class="tq">${q.q} · index ${q.v}</div>`+same.map(m=>`<div class="tm" style="border-color:${FAM[m.fam].color}"><span>${m.n}. ${fmtDate(m)} · ${FAM[m.fam].name} · ${DIR[m.dir]}</span><b>${esc(m.short)}</b></div>`).join('');
+    tip.innerHTML=`<div class="tq">${q.q} · index ${q.v}</div>`+same.map(m=>`<div class="tm" style="border-color:${FAM[m.fam].color}"><span>${m.n}. ${fmtDate(m)} · ${FAM[m.fam].name} · ${DIR[m.dir]}${m.status==='in'?' · In force today':''}</span><b>${esc(m.short)}</b></div>`).join('');
     tip.hidden=false;
     const cw=tip.parentElement.clientWidth, tw=tip.offsetWidth, left=Math.min(Math.max(host.offsetLeft+x-tw/2,4),cw-tw-4);
     tip.style.left=left+'px'; tip.style.top=(Math.max(sy(q.v)-tip.offsetHeight-14,4)+host.offsetTop)+'px';
