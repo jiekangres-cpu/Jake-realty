@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="styles.css">
 <script src="config.js"></script>
 <script src="questions.js"></script>
+<script src="data.js"></script>
 <script>
 (function(){var id=window.SITE.metaPixelId;if(!id)return;
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -21,14 +22,9 @@ fbq('init',id);fbq('track','PageView');})();
   <a class="logo" href="#top">JAKE <span>YEO</span></a>
   <p class="sub">Singapore property advisor. Pricing data, exit planning, clear next steps.</p>
   <nav id="sidenav">
-    <a href="#top">Home</a>
-    <a href="#problem">The problem</a>
-    <a href="#capital">How I think</a>
-    <a href="#case">Case study</a>
-    <a href="#approach">How I work</a>
-    <a href="#about">About</a>
-    <a href="#proof">Client feedback</a>
-    <a href="#qualify">Check my options</a>
+    <a href="#top" data-nav="home">Home</a>
+    <a href="#about" data-nav="about">About me</a>
+    <a href="#qualify" data-nav="options">Check my options</a>
   </nav>
   <div class="foot">
     <a class="btn sm" href="#qualify" style="text-align:center">Check my options</a>
@@ -38,79 +34,116 @@ fbq('init',id);fbq('track','PageView');})();
 
 <header class="nav"><div class="wrap">
   <a class="logo" href="#top">JAKE <span>YEO</span></a>
-  <a class="btn sm" href="#qualify">Check my options</a>
+  <nav class="mnav"><a href="#about">About me</a><a class="btn sm" href="#qualify">Check my options</a></nav>
 </div></header>
 
-<section class="screen hero" id="top"><div class="wrap">
+<!-- HOME -->
+<section class="screen hero" id="top" data-nav="home"><div class="wrap">
   <div class="eyebrow rv">Singapore property advisory</div>
-  <h1 class="rv d1">Your property choice today decides your profit in 5 years.</h1>
-  <p class="lead rv d2">I was a pricing data analyst before I became a realtor. I read transaction data the way a trader reads a chart, then help you pick the home with the best exit.</p>
+  <h1 class="rv d1">If you could go back, what would you change?</h1>
+  <p class="lead rv d2">Most owners can name one decision they would redo: the unit, the district, the size, the year. I have heard these regrets from many clients, and the transaction data shows where they came from.</p>
   <div class="cta rv d3">
-    <a class="btn" href="#qualify">Check my options</a>
-    <a class="btn ghost" href="#problem">See how I think</a>
+    <a class="btn" href="#looking-back">Look back with me</a>
+    <a class="btn ghost" href="#qualify">Check my options</a>
   </div>
   <div class="cue rv d3">Scroll ↓</div>
 </div></section>
 
-<section class="screen alt" id="problem"><div class="wrap">
-  <div class="eyebrow rv">The problem</div>
-  <h2 class="rv d1">Most buyers get stuck on the choice.</h2>
-  <p class="lead rv d2" style="margin-top:0">New launch or resale. East or Central. 2-bedroom or 3-bedroom. Every option has a good argument, so people wait, and the market moves anyway. Budget is rarely what holds them back. Decision paralysis is.</p>
+<section class="screen alt" id="looking-back" data-nav="home"><div class="wrap">
+  <div class="eyebrow rv">Since 1995</div>
+  <h2 class="rv d1">Every cooling measure, on the URA price index.</h2>
+  <p class="lead rv d2" style="margin-top:0">Each line marks a government measure. Red lines cool the market, green lines ease it. Hover or tap a line for what changed.</p>
+  <div class="chartcard rv d3">
+    <div class="legend"><span><i class="lg line"></i>Private residential price index (2009-Q1 = 100)</span><span><i class="lg c"></i>Cooling measure</span><span><i class="lg w"></i>Easing measure</span></div>
+    <div id="ppiChart"></div>
+    <div id="ppiTip" class="tip" hidden></div>
+  </div>
+  <div class="tiles rv d3">
+    <div class="tile"><b id="st1">+99%</b><span>Index change from the first cooling measure (Sep 2009) to 2026-Q2</span></div>
+    <div class="tile"><b id="st2">-11.6%</b><span>Peak to trough, 2013-Q3 to 2017-Q2, the longest dip on the chart</span></div>
+    <div class="tile"><b id="st3">219.4</b><span>Latest index, 2026-Q2</span></div>
+  </div>
+  <details class="mlist rv"><summary>See all measures in a list</summary><ol id="measureList"></ol></details>
+  <p class="fine">Source: URA Private Residential Property Price Index via data.gov.sg. Policy dates compiled from MAS, MOF, MTI and agency timelines; confirm against the official notice before relying on any rate.</p>
 </div></section>
 
-<section class="screen" id="capital"><div class="wrap">
-  <div class="eyebrow rv">How I look at it</div>
-  <h2 class="rv d1">Three ideas behind every recommendation.</h2>
+<section class="screen" id="regrets" data-nav="home"><div class="wrap">
+  <div class="eyebrow rv">Looking back</div>
+  <h2 class="rv d1">Four questions I hear from owners.</h2>
   <div class="grid">
-    <div class="card rv d1"><h3>Property is capital</h3><p>A home is the biggest asset most people will hold. The question is whether that capital is working for you.</p></div>
-    <div class="card rv d2"><h3>Exit matters more than entry</h3><p>Who will realistically buy this from you in 5 to 10 years, and at what price? I start from the exit and work backwards.</p></div>
-    <div class="card rv d3"><h3>You have more than one cycle</h3><p>If you are young, you will likely go through 2 or 3 property cycles. A decision you can restructure later deserves less fear.</p></div>
+    <div class="card rv d1"><h3>Would you have made the upgrade?</h3><p>Some upgraders moved up and gained. Others held a flat that did the same job for less. I compare the two paths on your own cash, CPF and loan numbers.</p></div>
+    <div class="card rv d2"><h3>Would you have picked another district?</h3><p>The famous address and the best-performing address are often different projects. I check what each district's projects actually resold for.</p></div>
+    <div class="card rv d3"><h3>Would you have bought more bedrooms?</h3><p>A bigger home at a lower price per sqft has beaten smaller units at a premium in the cases below. I test this by bedroom type, not by project average.</p></div>
+    <div class="card rv d3"><h3>Would you have bought in a different year?</h3><p>Entry timing and entry price explain much of the spread in outcomes. The chart above is the backdrop for that decision.</p></div>
   </div>
 </div></section>
 
-<section class="screen alt" id="case"><div class="wrap">
-  <div class="eyebrow rv">Case study</div>
-  <h2 class="rv d1">Two similar-looking choices, very different outcomes.</h2>
-  <p class="lead rv d2" style="margin-top:0">[Replace with a real, anonymised client case: the project they were leaning toward, the project the data pointed to, and the actual gains.]</p>
+<section class="screen alt" id="case" data-nav="home"><div class="wrap">
+  <div class="eyebrow rv">Client regrets</div>
+  <h2 class="rv d1">Same timeline. +$85k against +$637k.</h2>
+  <p class="lead rv d2" style="margin-top:0">Two homes bought in 2021 and sold in 2025, taken from URA transaction records.</p>
   <div class="case rv d3">
-    <div class="card bad"><p>Client's first pick</p><b>+$[XXX]k</b><p>[Project name, years held]</p></div>
-    <div class="card good"><p>What the data supported</p><b>+$[XXX]k</b><p>[Project name, years held]</p></div>
+    <div class="card bad">
+      <p class="cname">Neu at Novena #11-02</p>
+      <span class="meta">District 11 · Freehold · 2-bedroom · 657 sqft</span>
+      <b>+$85,000</b>
+      <table class="kv">
+        <tr><td>Bought</td><td>2 Mar 2021 · $1,780,000 ($2,711 psf)</td></tr>
+        <tr><td>Sold</td><td>29 Oct 2025 · $1,865,000 ($2,840 psf)</td></tr>
+        <tr><td>Gain</td><td>+4.8% over 4.7 years</td></tr>
+        <tr><td>After costs*</td><td>about -$8,100</td></tr>
+      </table>
+    </div>
+    <div class="card good">
+      <p class="cname">Penrose #18-30</p>
+      <span class="meta">District 14 · 99-year · 3-bedroom · 980 sqft</span>
+      <b>+$636,888</b>
+      <table class="kv">
+        <tr><td>Bought</td><td>2 Jul 2021 · $1,652,000 ($1,687 psf)</td></tr>
+        <tr><td>Sold</td><td>9 May 2025 · $2,288,888 ($2,337 psf)</td></tr>
+        <tr><td>Gain</td><td>+38.6% over 3.9 years</td></tr>
+        <tr><td>After costs*</td><td>about +$540,000</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="lead rv d3" style="max-width:70ch;margin-bottom:8px">The Penrose buyer paid $128,000 less and got a home about 49% larger. Across 203 units that bought a 2021 new launch and resold in 2024 and 2025, a higher entry price per sqft went with a lower later gain (correlation -0.46). Neu at Novena entered at $2,711 psf, Penrose at $1,687.</p>
+  <p class="fine">*Estimated after 2021 buyer's stamp duty and 2% selling commission. Source: URA transactions in my dataset. Past results do not predict future prices.</p>
+  <p class="rv d3" style="margin-top:20px"><a class="btn" href="#qualify">Find out what yours could look like</a></p>
+</div></section>
+
+<!-- ABOUT -->
+<section class="screen" id="about" data-nav="about"><div class="wrap">
+  <div class="split">
+    <div class="ph rv">Your photo here<br>(replace with &lt;img src="jake.jpg"&gt;)</div>
+    <div class="rv d1">
+      <div class="eyebrow">About me</div>
+      <h2>I read the data before I give an opinion.</h2>
+      <p class="lead" style="margin:0">I am a realtor with <span data-agency></span>. My background is pricing analytics, and I apply the same habits to every property question: test it against real transactions first.</p>
+    </div>
   </div>
 </div></section>
 
-<section class="screen" id="approach"><div class="wrap">
-  <div class="eyebrow rv">How I work</div>
-  <h2 class="rv d1">A process you can check.</h2>
+<section class="screen alt" id="story" data-nav="about"><div class="wrap">
   <div class="steps">
-    <div class="card rv d1"><h3>A short conversation about your situation</h3><p>Current property, CPF position, loan headroom, family and timeline. I need these before recommending anything.</p></div>
-    <div class="card rv d2"><h3>A case study built on your numbers</h3><p>We compare real projects on the factors that move price over time, using actual transactions.</p></div>
-    <div class="card rv d3"><h3>Shortlist, then showflat</h3><p>We narrow to a few developments and units that fit, and only then do we visit.</p></div>
-    <div class="card rv d3"><h3>Loan and completion</h3><p>Loan structuring and the legal steps, with the exit plan in view the whole way.</p></div>
+    <div class="card rv d1"><h3>Pricing analytics</h3><p>I worked as a pricing data analyst for [years] at [company or industry]. The job was to find what drives price and prove it with data before anyone acted on it.</p></div>
+    <div class="card rv d2"><h3>Real estate analysis since 2024</h3><p>I turned that toolkit on Singapore property in 2024. My dataset now holds more than 700,000 private transactions from 1995 to 2026. I use it to test age, tenure, size, district and supply against what homes resold for, and I publish the results, including the ones that break common rules of thumb.</p></div>
+    <div class="card rv d3"><h3>My parents' en bloc</h3><p>In 2018 my parents' estate signed an en bloc sale: 43 units, $95 million, to a developer. The buyer later called off the deal and the owners went to court. In November 2021 the High Court ruled for the buyer and the deposit went back. One clause in the agreement required planning permission for at least 120 units, and the authority's limit for the site was 112. I watched a transaction that size turn on a single number, and it made me want to understand where numbers like that come from.</p></div>
   </div>
 </div></section>
 
-<section class="screen alt" id="about"><div class="wrap split">
-  <div class="ph rv">Your photo here<br>(replace with &lt;img src="jake.jpg"&gt;)</div>
-  <div class="rv d1">
-    <div class="eyebrow">About</div>
-    <h2>Jake Yeo</h2>
-    <p class="lead" style="margin:0 0 16px">Realtor with <span data-agency></span>. Before property I worked as a pricing data analyst, so my advice rests on transaction history: what sold, at what psf, and how age, tenure and location shaped the price.</p>
-    <p style="color:var(--mute)">I publish my analysis openly on Instagram and TikTok, including the cases where the standard rule of thumb does not hold.</p>
+<section class="screen" id="jna" data-nav="about"><div class="wrap">
+  <div class="eyebrow rv">The team behind the advice</div>
+  <h2 class="rv d1">JNA Real Estate</h2>
+  <div class="tiles big rv d2">
+    <div class="tile"><b>1,023+</b><span>Clients advised by the JNA Real Estate team</span></div>
+    <div class="tile"><b>19.56%</b><span>Average return on equity across those clients</span></div>
   </div>
+  <p class="fine rv d3">Team-wide figures for JNA Real Estate, not an individual record. [Add the period covered and how return on equity is calculated.] Past performance does not guarantee future results.</p>
+  <p class="rv d3" style="margin-top:20px"><a class="btn" href="#qualify">Check my options</a></p>
 </div></section>
 
-<section class="screen" id="proof"><div class="wrap">
-  <div class="eyebrow rv">Client feedback</div>
-  <h2 class="rv d1">What clients say.</h2>
-  <div class="grid">
-    <div class="card quote rv d1">"[Paste a real client review here.]"<small>[Client first name, project]</small></div>
-    <div class="card quote rv d2">"[Paste a real client review here.]"<small>[Client first name, project]</small></div>
-    <div class="card quote rv d3">"[Paste a real client review here.]"<small>[Client first name, project]</small></div>
-  </div>
-  <p class="fine">Screenshots of real WhatsApp or Google reviews convert better than typed quotes.</p>
-</div></section>
-
-<section class="screen alt" id="qualify"><div class="wrap">
+<!-- CHECK MY OPTIONS -->
+<section class="screen alt" id="qualify" data-nav="options"><div class="wrap">
   <div style="text-align:center;max-width:620px;margin:0 auto">
     <h2 class="rv">Let's look at the numbers together.</h2>
     <p class="lead rv d1" style="margin:0 auto">A few quick questions, then I come back to you on WhatsApp with a view on your options. No obligation.</p>
@@ -119,13 +152,14 @@ fbq('init',id);fbq('track','PageView');})();
 </div></section>
 
 <footer><div class="wrap">
-  <div><b style="color:var(--ink)">Jake Yeo</b><br><span data-agency></span> · CEA Reg. <span data-reg></span></div>
+  <div><span style="color:var(--ink);font-weight:600">Jake Yeo</span><br><span data-agency></span> · CEA Reg. <span data-reg></span></div>
   <div><a data-wa href="#">WhatsApp</a> · <a data-mail href="#">Email</a></div>
   <div>© <span id="yr"></span> Jake Yeo. Figures are illustrative and not an offer or financial advice.</div>
 </div></footer>
 
 <a class="btn" id="stickyCta" href="#qualify">Check my options</a>
 
+<script src="chart.js"></script>
 <script src="form.js"></script>
 <script>
 const S=window.SITE;
@@ -135,11 +169,9 @@ document.querySelector('[data-wa]').href='https://wa.me/'+S.whatsapp;
 document.querySelector('[data-mail]').href='mailto:'+S.email;
 document.getElementById('yr').textContent=new Date().getFullYear();
 
-// reveal on scroll
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 
-// progress bar + sticky button (hidden on hero and once the form is on screen)
 const bar=document.getElementById('scrollbar'),cta=document.getElementById('stickyCta'),form=document.getElementById('qualify');
 function onScroll(){
   const h=document.documentElement;
@@ -149,9 +181,8 @@ function onScroll(){
 }
 addEventListener('scroll',onScroll,{passive:true});onScroll();
 
-// highlight current section in the sidebar
 const links=[...document.querySelectorAll('#sidenav a')];
-const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-45% 0px -50% 0px'});
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.dataset.nav===e.target.dataset.nav))}}),{rootMargin:'-45% 0px -50% 0px'});
 document.querySelectorAll('section.screen').forEach(sec=>so.observe(sec));
 </script>
 </body>
