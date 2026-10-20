@@ -226,3 +226,11 @@ ul.insights{margin:12px 0 2px;padding-left:18px;color:var(--ink);font-size:.92re
 /* compact phone header */
 .logo,.mnav a,.mnav .btn{white-space:nowrap}
 @media(max-width:600px){.nav .wrap{padding:0 14px}.mnav{gap:12px}.mnav a:not(.btn){font-size:.84rem}.mnav .btn.sm{padding:8px 12px;font-size:.84rem}.logo{font-size:.78rem}}
+
+/* four questions: 2x2 box grid */
+.qgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
+.qgrid .card{display:flex;flex-direction:column;min-height:230px;padding:22px 22px 20px}
+.qgrid .qn{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#fff;font-weight:700;font-size:.95rem;margin-bottom:14px}
+.qgrid h3{font-size:1.2rem;line-height:1.3;margin-bottom:10px}
+.qgrid p{margin-top:auto;font-size:.92rem}
+@media(max-width:700px){.qgrid{grid-template-columns:1fr}.qgrid .card{min-height:0}}
