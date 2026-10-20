@@ -28,8 +28,38 @@ const st=window.PPI_STATS;
 if(st){
   document.getElementById('st1').textContent='+'+st.since2009+'%';
   document.getElementById('st2').textContent=st.drop.toFixed(1)+'%';
-  document.getElementById('st3').textContent=st.latest.toFixed(1);
 }
+
+// ---- bull run analysis, all computed from the index data
+const Q=window.PPI, qi=Object.fromEntries(Q.map((x,i)=>[x[0],i])), val=q=>Q[qi[q]][1];
+const lastQ=Q[Q.length-1][0];
+const mq=m=>{const d=new Date(m.date+'T00:00:00');return d.getFullYear()*4+Math.floor(d.getMonth()/3)};
+const qn=q=>{const [y,n]=q.split('-Q');return +y*4+(+n-1)};
+const tight=(a,b)=>window.MEASURES.filter(m=>m.dir==='T'&&mq(m)>qn(a)&&mq(m)<=qn(b)).length;
+const trough1=Q.filter(x=>x[0]>='2008-Q1'&&x[0]<='2009-Q4').reduce((a,b)=>b[1]<a[1]?b:a)[0];
+const peak=st.peak[1], trough2=st.trough[1];
+function phase(name,a,b){const ch=val(b)/val(a)-1, yrs=(qi[b]-qi[a])/4, pa=(Math.pow(val(b)/val(a),1/yrs)-1);
+  return {name,a,b,from:val(a),to:val(b),ch,yrs,pa,tight:tight(a,b)};}
+const R1=phase('Bull run 1',trough1,peak), DN=phase('Downturn',peak,trough2), R2=phase('Latest bull run',trough2,lastQ);
+const pct=(x,d=1)=>(x>=0?'+':'')+(x*100).toFixed(d)+'%';
+document.getElementById('st3').textContent=pct(R2.ch,0);
+document.getElementById('st3t').textContent=`Latest bull run: ${R2.a} trough (${R2.from}) to ${R2.b} (${R2.to}), about ${(R2.pa*100).toFixed(1)}% a year`;
+document.getElementById('runsTbl').innerHTML='<thead><tr><th>Phase</th><th>Period</th><th>Index</th><th>Change</th><th>Per year</th><th>Tightening moves</th></tr></thead><tbody>'+
+  [R1,DN,R2].map((r,i)=>`<tr class="${i===2?'cur':''}"><td>${r.name}</td><td>${r.a} to ${r.b}<br><small>${r.yrs.toFixed(1)} years</small></td><td>${r.from} to ${r.to}</td><td class="${r.ch<0?'neg':'pos'}">${pct(r.ch)}</td><td class="${r.pa<0?'neg':'pos'}">${pct(r.pa)}</td><td>${r.tight}</td></tr>`).join('')+'</tbody>';
+// insights
+const after=Q.filter(x=>qi[x[0]]>qi[trough2]);
+let fell=0,worst=0; after.forEach(x=>{const prev=Q[qi[x[0]]-1][1], c=x[1]/prev-1; if(c<0){fell++; if(c<worst) worst=c;}});
+const yoy=i=>Q[i][1]/Q[i-4][1]-1;
+let best={v:-9,i:0}; for(let i=qi[trough2]+4;i<Q.length;i++){const y=yoy(i); if(y>best.v) best={v:y,i}}
+const cur=yoy(Q.length-1); let since=null; for(let i=Q.length-2;i>=qi[trough2]+4;i--){ if(yoy(i)<=cur){since=Q[i][0];break} }
+const ins=[
+  `Since the ${trough2} trough, ${fell} of ${after.length} quarters fell, and the largest fall was ${(worst*100).toFixed(1)}%.`,
+  `Fastest 12 months: ${pct(best.v)} from ${Q[best.i-4][0]} to ${Q[best.i][0]}.`,
+  `Latest 12 months: ${pct(cur)}${since?`, the slowest rise since ${since}`:''}.`,
+  `Bull run 1 averaged ${pct(R1.pa)} a year over ${R1.yrs.toFixed(1)} years, with ${R1.tight} tightening moves along the way. The latest run averages ${pct(R2.pa)} a year over ${R2.yrs.toFixed(1)} years, with ${R2.tight} tightening moves.`
+];
+document.getElementById('insights').innerHTML=ins.map(t=>`<li>${t}</li>`).join('');
+
 // legend (also a filter)
 const lg=document.getElementById('famLegend');
 lg.innerHTML=Object.entries(FAM).filter(([k])=>M.some(m=>m.fam===k)).map(([k,f])=>`<button type="button" class="chip" data-f="${k}"><i style="background:${f.color}"></i>${f.name}</button>`).join('');
@@ -68,12 +98,14 @@ function draw(){
   const xl=years.map(y=>`<text x="${sx(y)}" y="${H-8}" class="ax" text-anchor="middle">${y}</text>`).join('');
   const path=P.map((p,i)=>(i?'L':'M')+sx(p.t).toFixed(1)+' '+sy(p.v).toFixed(1)).join(' ');
   const by=m=>10+BR+m.lane*(BR*2+4);
+  const lastP=P[P.length-1], tr=P.find(p=>p.q===trough2);
+  const band=tr?`<rect x="${sx(tr.t)}" y="${mt}" width="${sx(lastP.t)-sx(tr.t)}" height="${H-mb-mt}" fill="#2f8f5b" opacity=".1"/><text x="${sx(tr.t)+6}" y="${H-mb-8}" class="an" style="fill:#2f8f5b">Latest bull run ${pct(R2.ch,0)}</text>`:'';
   const lines=vis.map(m=>`<line x1="${m.x}" x2="${m.x}" y1="${by(m)}" y2="${H-mb}" stroke="${col(m)}" stroke-width="2" opacity=".75"/>`).join('');
   const badges=vis.map(m=>`<g>${m.status==='in'?`<circle cx="${m.x}" cy="${by(m)}" r="${BR+4}" fill="none" stroke="#c9a227" stroke-width="2"/>`:''}${badgeShape(m,m.x,by(m),col(m))}<text x="${m.x}" y="${by(m)+3.5}" text-anchor="middle" class="bn" fill="#fff">${m.n}</text></g>`).join('');
   const last=P[P.length-1], pk=st&&P.find(p=>p.q===st.peak[1]);
   const marks=(pk?`<text x="${sx(pk.t)}" y="${sy(pk.v)-8}" class="an" text-anchor="middle">Peak ${pk.v}</text>`:'')+
     `<text x="${sx(last.t)-2}" y="${sy(last.v)-8}" class="an" text-anchor="end">${last.v}</text>`;
-  host.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Private residential price index 2005 to 2026 with numbered policy measures coloured by type">${grid}${xl}${lines}<path d="${path}" class="pl"/>${badges}${marks}<line id="xh" y1="${mt}" y2="${H-mb}" class="xh" style="display:none"/><rect x="${ml}" y="0" width="${W-ml-mr}" height="${H}" fill="transparent" id="hit"/></svg>`;
+  host.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Private residential price index 2005 to 2026 with numbered policy measures coloured by type">${grid}${xl}${band}${lines}<path d="${path}" class="pl"/>${badges}${marks}<line id="xh" y1="${mt}" y2="${H-mb}" class="xh" style="display:none"/><rect x="${ml}" y="0" width="${W-ml-mr}" height="${H}" fill="transparent" id="hit"/></svg>`;
   const svg=host.firstChild, xh=svg.querySelector('#xh'), hit=svg.querySelector('#hit');
   function move(e){
     const r=svg.getBoundingClientRect(), x=e.clientX-r.left, t=T0+(x-ml)/(W-ml-mr)*(T1-T0);

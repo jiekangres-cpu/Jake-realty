@@ -19,13 +19,39 @@ fbq('init',id);fbq('track','PageView');})();
 <div id="scrollbar"></div>
 
 <aside class="side">
-  <a class="logo" href="#top">JAKE <span>YEO</span></a>
+  <a class="logo" href="#market">JAKE <span>YEO</span></a>
   <p class="sub">Singapore property advisor. Pricing data, exit planning, clear next steps.</p>
-  <nav id="sidenav">
-    <a href="#top" data-nav="home">Home</a>
-    <a href="#about" data-nav="about">About me</a>
-    <a href="#qualify" data-nav="options">Check my options</a>
-  </nav>
+  <div class="tl" id="tl">
+    <span class="tl-line"><i id="tlFill"></i></span>
+    <div class="tl-item" data-nav="market">
+      <a class="tl-dot" href="#market" aria-label="Current Housing Market"></a>
+      <a class="tl-title" href="#market">Current Housing Market</a>
+      <p class="tl-desc">Where prices stand and what the government has done to cool them.</p>
+      <a class="tl-sub" href="#market">Price index since 2005</a>
+      <a class="tl-sub" href="#measures">Every measure, before and after</a>
+    </div>
+    <div class="tl-item" data-nav="home">
+      <a class="tl-dot" href="#home" aria-label="Home"></a>
+      <a class="tl-title" href="#home">Home</a>
+      <p class="tl-desc">The decisions owners wish they could redo.</p>
+      <a class="tl-sub" href="#home">If you could go back</a>
+      <a class="tl-sub" href="#regrets">Four questions owners ask</a>
+      <a class="tl-sub" href="#case">Client regret: Neu vs Penrose</a>
+    </div>
+    <div class="tl-item" data-nav="about">
+      <a class="tl-dot" href="#about" aria-label="About me"></a>
+      <a class="tl-title" href="#about">About me</a>
+      <p class="tl-desc">Who I am and how I analyse property.</p>
+      <a class="tl-sub" href="#about">My background</a>
+      <a class="tl-sub" href="#story">Since 2024 and my parents' en bloc</a>
+      <a class="tl-sub" href="#jna">JNA track record</a>
+    </div>
+    <div class="tl-item" data-nav="options">
+      <a class="tl-dot" href="#qualify" aria-label="Check my options"></a>
+      <a class="tl-title" href="#qualify">Check my options</a>
+      <p class="tl-desc">A few quick questions, then I reply on WhatsApp.</p>
+    </div>
+  </div>
   <div class="foot">
     <a class="btn sm" href="#qualify" style="text-align:center">Check my options</a>
     <small><span data-agency></span> · CEA <span data-reg></span></small>
@@ -33,25 +59,15 @@ fbq('init',id);fbq('track','PageView');})();
 </aside>
 
 <header class="nav"><div class="wrap">
-  <a class="logo" href="#top">JAKE <span>YEO</span></a>
-  <nav class="mnav"><a href="#about">About me</a><a class="btn sm" href="#qualify">Check my options</a></nav>
+  <a class="logo" href="#market">JAKE <span>YEO</span></a>
+  <nav class="mnav"><a href="#home">Home</a><a href="#about">About</a><a class="btn sm" href="#qualify">Check my options</a></nav>
 </div></header>
 
 <!-- HOME -->
-<section class="screen hero" id="top" data-nav="home"><div class="wrap">
-  <div class="eyebrow rv">Singapore property advisory</div>
-  <h1 class="rv d1">If you could go back, what would you change?</h1>
-  <p class="lead rv d2">Most owners can name one decision they would redo: the unit, the district, the size, the year. I have heard these regrets from many clients, and the transaction data shows where they came from.</p>
-  <div class="cta rv d3">
-    <a class="btn" href="#looking-back">Look back with me</a>
-    <a class="btn ghost" href="#qualify">Check my options</a>
-  </div>
-  <div class="cue rv d3">Scroll ↓</div>
-</div></section>
-
-<section class="screen alt" id="looking-back" data-nav="home"><div class="wrap">
+<section class="screen" id="market" data-nav="market"><div class="wrap">
   <div class="eyebrow rv">Since 2005</div>
-  <h2 class="rv d1">Every cooling measure and rule change, on the URA price index.</h2>
+  <h1 class="rv d1">Current Housing Market</h1>
+  <p class="subtitle rv d1">Every cooling measure and rule change, on the URA price index.</p>
   <p class="asof rv d1">Data is accurate as of 20th October 2026</p>
   <p class="lead rv d2" style="margin-top:0">Each numbered line is a government measure, coloured by type: TDSR, ABSD, BSD, SSD, loan limits, the en bloc unit cap and floor-area rules. Coloured markers tighten the market, green markers ease it, and diamonds change the rules. A gold ring marks measures still in force today, and the switch below shows only those. Hover or tap a number, or tap a colour to filter.</p>
   <div class="chartcard rv d3">
@@ -64,10 +80,22 @@ fbq('init',id);fbq('track','PageView');})();
   <div class="tiles rv d3">
     <div class="tile"><b id="st1">+99%</b><span>Index change from the first cooling measure (Sep 2009) to 2026-Q2</span></div>
     <div class="tile"><b id="st2">-11.6%</b><span>Peak to trough, 2013-Q3 to 2017-Q2, the longest dip on the chart</span></div>
-    <div class="tile"><b id="st3">219.4</b><span>Latest index, 2026-Q2</span></div>
+    <div class="tile run"><b id="st3">+61%</b><span id="st3t">Latest bull run, since the 2017-Q2 trough</span></div>
   </div>
-  <details class="mlist rv" open><summary>What each number means</summary><ol id="measureList"></ol></details>
+  <div class="runs rv d3"><h3>Bull runs compared</h3><div class="tblwrap"><table id="runsTbl"></table></div><ul class="insights" id="insights"></ul></div>
+  <details class="mlist rv" id="measures" open><summary>What each number means</summary><ol id="measureList"></ol></details>
   <p class="fine">Source: URA Private Residential Property Price Index via data.gov.sg. Policy dates from MAS, MOF, MTI, IRAS and URA circulars (DC08-17, DC08-18, DC18-06, DC22-10) and agency timelines; the Sep 2012 unit-cap date is from press coverage. “In force” statuses were checked against URA, IRAS and MAS pages and my policy research as at 20 October 2026. Confirm against the official notice before relying on any rate.</p>
+</div></section>
+
+<section class="screen hero alt" id="home" data-nav="home"><div class="wrap">
+  <div class="eyebrow rv">Singapore property advisory</div>
+  <h2 class="h1like rv d1">If you could go back, what would you change?</h2>
+  <p class="lead rv d2">Most owners can name one decision they would redo: the unit, the district, the size, the year. I have heard these regrets from many clients, and the transaction data shows where they came from.</p>
+  <div class="cta rv d3">
+    <a class="btn" href="#regrets">Look back with me</a>
+    <a class="btn ghost" href="#qualify">Check my options</a>
+  </div>
+  <div class="cue rv d3">Scroll ↓</div>
 </div></section>
 
 <section class="screen" id="regrets" data-nav="home"><div class="wrap">
@@ -172,17 +200,36 @@ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.targ
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 
 const bar=document.getElementById('scrollbar'),cta=document.getElementById('stickyCta'),form=document.getElementById('qualify');
-function onScroll(){
-  const h=document.documentElement;
-  bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight||1))*100+'%';
-  const past=h.scrollTop>window.innerHeight*.6, fr=form.getBoundingClientRect();
-  cta.classList.toggle('show',past && fr.top>window.innerHeight*.8);
+const items=[...document.querySelectorAll('#tl .tl-item')], fill=document.getElementById('tlFill'), lineEl=document.querySelector('.tl-line'), tl=document.getElementById('tl');
+const secs=[...document.querySelectorAll('section.screen')];
+let dotY=[], starts=[];
+function layout(){ // measure dot positions and the scroll position where each group begins
+  const tr=tl.getBoundingClientRect();
+  dotY=items.map(it=>{const r=it.querySelector('.tl-dot').getBoundingClientRect();return r.top-tr.top+r.height/2});
+  if(dotY.length&&dotY[0]!==undefined){lineEl.style.top=dotY[0]+'px';lineEl.style.height=(dotY[dotY.length-1]-dotY[0])+'px';}
+  starts=items.map(it=>{const s=secs.find(x=>x.dataset.nav===it.dataset.nav);return s.getBoundingClientRect().top+scrollY});
 }
-addEventListener('scroll',onScroll,{passive:true});onScroll();
-
-const links=[...document.querySelectorAll('#sidenav a')];
-const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.toggle('active',l.dataset.nav===e.target.dataset.nav))}}),{rootMargin:'-45% 0px -50% 0px'});
-document.querySelectorAll('section.screen').forEach(sec=>so.observe(sec));
+function onScroll(){
+  const h=document.documentElement, y=h.scrollTop;
+  bar.style.width=(y/(h.scrollHeight-h.clientHeight||1))*100+'%';
+  const past=y>window.innerHeight*.6, fr=form.getBoundingClientRect();
+  cta.classList.toggle('show',past && fr.top>window.innerHeight*.8);
+  if(!starts.length) return;
+  const probe=y+window.innerHeight*.45;
+  let gi=0; starts.forEach((s,i)=>{if(probe>=s) gi=i});
+  items.forEach((it,i)=>{it.classList.toggle('visited',i<gi);it.classList.toggle('current',i===gi)});
+  let h2=0;
+  if(gi>=items.length-1) h2=dotY[dotY.length-1]-dotY[0];
+  else {const f=Math.min(1,Math.max(0,(probe-starts[gi])/(starts[gi+1]-starts[gi]))); h2=(dotY[gi]-dotY[0])+f*(dotY[gi+1]-dotY[gi]);}
+  fill.style.height=Math.max(0,h2)+'px';
+  const cur=[...secs].reverse().find(s=>s.getBoundingClientRect().top+scrollY<=probe)||secs[0];
+  document.querySelectorAll('#tl .tl-sub').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur.id));
+}
+addEventListener('scroll',onScroll,{passive:true});
+addEventListener('resize',()=>{layout();onScroll()});
+addEventListener('load',()=>{layout();onScroll()});
+layout();onScroll();
+setTimeout(()=>{layout();onScroll()},800); // late layout shifts (chart, fonts)
 </script>
 </body>
 </html>
