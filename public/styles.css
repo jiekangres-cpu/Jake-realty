@@ -234,3 +234,5 @@ ul.insights{margin:12px 0 2px;padding-left:18px;color:var(--ink);font-size:.92re
 .qgrid h3{font-size:1.2rem;line-height:1.3;margin-bottom:10px}
 .qgrid p{margin-top:auto;font-size:.92rem}
 @media(max-width:700px){.qgrid{grid-template-columns:1fr}.qgrid .card{min-height:0}}
+/* intro text spans the full content width, in line with the chart box */
+#market .lead,#market .subtitle{max-width:none}
