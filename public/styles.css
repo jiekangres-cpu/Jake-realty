@@ -238,3 +238,7 @@ ul.insights{margin:12px 0 2px;padding-left:18px;color:var(--ink);font-size:.92re
 #market .lead,#market .subtitle{max-width:none}
 /* all intro paragraphs span the full content width (beats inline limits) */
 p.lead,.subtitle,.fine{max-width:none!important}
+
+/* combined story card */
+.card.story{padding:28px 30px}.card.story h3{font-size:1.25rem;margin-bottom:12px}
+.card.story p{color:var(--ink);font-size:1rem;line-height:1.7;margin:0 0 14px}.card.story p:last-child{margin-bottom:0}
