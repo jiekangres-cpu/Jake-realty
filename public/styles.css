@@ -271,3 +271,5 @@ p.lead,.subtitle,.fine{max-width:none!important}
 .mtabs a{flex:none;text-decoration:none;color:var(--mute);font-size:.86rem;font-weight:600;padding:11px 0 9px;border-bottom:2px solid transparent}
 .mtabs a.on{color:var(--ink);border-bottom-color:var(--gold)}
 @media(min-width:1000px){.mtabs{display:none}}
+
+@media(max-width:999px){.mtabs{justify-content:space-around;gap:0;padding:0 8px}.mtabs a{flex:1;text-align:center;font-size:.9rem}}
