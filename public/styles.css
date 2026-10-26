@@ -253,3 +253,11 @@ p.lead,.subtitle,.fine{max-width:none!important}
 .aboutcopy h2{margin-bottom:16px}
 .aboutcopy p{color:var(--ink);font-size:1rem;line-height:1.72;margin:0 0 14px}
 @media(max-width:800px){.about-split .portrait{position:static;max-width:420px}}
+
+/* portrait: no panel, 20% smaller, fades out at the bottom */
+.portrait{background:none!important;border:0!important;border-radius:0!important;overflow:visible!important;aspect-ratio:auto!important;display:block!important}
+.portrait img{width:80%!important;height:auto!important;object-fit:initial!important;margin:0 auto;-webkit-mask-image:linear-gradient(to bottom,#000 78%,transparent 100%);mask-image:linear-gradient(to bottom,#000 78%,transparent 100%)}
+.aboutcopy .h2b{margin-top:30px}
+.aboutcopy h2{font-size:clamp(1.5rem,3vw,2rem);margin:0 0 10px}
+@media(min-width:800px){.about-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.about-split .portrait{width:100%}
