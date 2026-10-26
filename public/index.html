@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jake Yeo | Singapore Property Advisor</title>
 <meta name="description" content="Data-led property advice for Singapore buyers, upgraders and investors. Pricing analysis, exit planning and a clear next step.">
-<link rel="stylesheet" href="styles.css?v=20261022">
+<link rel="stylesheet" href="styles.css?v=20261026">
 <script src="config.js"></script>
 <script src="questions.js"></script>
 <script src="data.js"></script>
@@ -60,8 +60,10 @@ fbq('init',id);fbq('track','PageView');})();
 
 <header class="nav"><div class="wrap">
   <a class="logo" href="#market">JAKE <span>YEO</span></a>
-  <nav class="mnav"><a href="#case">Assets</a><a href="#about">About</a><a class="btn sm" href="#qualify">Check my options</a></nav>
-</div></header>
+  <nav class="mnav"><a class="btn sm" href="#qualify">Check my options</a></nav>
+</div>
+<nav class="mtabs" id="mtabs" aria-label="Sections"><a href="#market" data-nav="market">Singapore's Real Estate Market</a><a href="#case" data-nav="home">Real Estate as an Asset</a><a href="#about" data-nav="about">About me</a></nav>
+</header>
 
 <!-- HOME -->
 <section class="screen" id="market" data-nav="market"><div class="wrap">
@@ -218,6 +220,8 @@ function onScroll(){
   fill.style.height=Math.max(0,h2)+'px';
   const cur=[...secs].reverse().find(s=>s.getBoundingClientRect().top+scrollY<=probe)||secs[0];
   document.querySelectorAll('#tl .tl-sub').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur.id));
+  const mt=document.getElementById('mtabs');
+  if(mt&&mt.offsetParent){mt.querySelectorAll('a').forEach(a=>{const on=a.dataset.nav===cur.dataset.nav; if(on&&!a.classList.contains('on')){a.classList.add('on');mt.scrollLeft=mt.scrollLeft+(a.getBoundingClientRect().left-mt.getBoundingClientRect().left)-16} else if(!on) a.classList.remove('on')})}
 }
 addEventListener('scroll',onScroll,{passive:true});
 addEventListener('resize',()=>{layout();onScroll()});

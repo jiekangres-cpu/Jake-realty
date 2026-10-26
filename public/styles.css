@@ -264,3 +264,10 @@ p.lead,.subtitle,.fine{max-width:none!important}
 
 .about-split .portrait{order:2}
 @media(max-width:800px){.about-split .portrait{order:-1}}
+
+/* phone tab strip with full section names */
+.mtabs{display:flex;gap:22px;overflow-x:auto;padding:0 16px;border-top:1px solid var(--line);white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mtabs::-webkit-scrollbar{display:none}
+.mtabs a{flex:none;text-decoration:none;color:var(--mute);font-size:.86rem;font-weight:600;padding:11px 0 9px;border-bottom:2px solid transparent}
+.mtabs a.on{color:var(--ink);border-bottom-color:var(--gold)}
+@media(min-width:1000px){.mtabs{display:none}}
