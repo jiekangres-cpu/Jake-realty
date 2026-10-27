@@ -3,9 +3,9 @@
 window.QUESTIONS = [
   {key:'goal', title:'What are you looking to do?', sub:'Pick the closest match.', options:[
     {v:'My First Home (Buy)', sub:'Buying my first home'},
-    {v:'Upgrade from HDB', sub:'Sell my flat, buy private'},
+    {v:'Upgrading', sub:'Moving up to a bigger or better home'},
     {v:'Investing in Property', sub:'Rental yield or capital gain'},
-    {v:'Just looking to sell'}]},
+    {v:'Just Looking to Sell'}]},
   {key:'current', title:'What do you own today?', sub:'This affects stamp duty, CPF and loan position.', options:[
     {v:'Nothing yet', sub:'Renting or living with family'},
     {v:'HDB, past MOP'},{v:'HDB, not yet MOP'},{v:'Private property'},{v:'More than one property'}]},
@@ -24,7 +24,7 @@ window.QUESTIONS = [
 window.scoreLead = function(a){
   const urgent = a.timeline==='Within 3 months' || a.timeline==='3 to 6 months';
   const near = a.timeline==='6 to 12 months';
-  const lowBudget = a.budget==='Below $1.2M' && a.goal!=='Just looking to sell';
+  const lowBudget = a.budget==='Below $1.2M' && a.goal!=='Just Looking to Sell';
   if(urgent && !lowBudget) return 'A';
   if(urgent || near) return 'B';
   return 'C';
