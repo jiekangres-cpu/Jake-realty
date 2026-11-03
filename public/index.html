@@ -160,9 +160,15 @@ fbq('init',id);fbq('track','PageView');})();
 <section class="screen" id="jna" data-nav="about"><div class="wrap">
   <div class="eyebrow rv">The team behind the advice</div>
   <h2 class="rv d1">JNA Real Estate</h2>
-  <p class="lead rv d1" style="margin:0 0 8px;max-width:62ch">Investment track record: annualised gains, with an average holding period of 3 years.</p>
+  <p class="lead rv d1" style="margin:0 0 8px">Investing always has risk, but here's our record:</p>
   <figure class="trk rv d2"><img src="jna-track-record.png" alt="JNA Real Estate investment track record: scatter chart of annualised gains per client, average 3-year holding period, with more than 1,023 investment clients served and a 19.56% average per annum return on equity" loading="lazy" width="1424" height="752"><figcaption>JNA Real Estate investment track record. Each dot is one client's annualised gain.</figcaption></figure>
   <p class="fine rv d3">Team-wide figures for JNA Real Estate. Returns are based on capital appreciation. Past performance does not guarantee future results.</p>
+  <h3 class="rv d3" style="margin:28px 0 8px">Our 3-point investment system</h3>
+  <ol class="rv d3" style="margin:0 0 0 1.2em;padding:0;line-height:1.7">
+    <li>Size of development</li>
+    <li>Right entry price, analysed by lagging and leading indicators and supported by safety nets</li>
+    <li><a data-wa href="#" target="_blank" rel="noopener">Message me to find out</a></li>
+  </ol>
   <p class="rv d3" style="margin-top:20px"><a class="btn" href="#qualify">Check my options</a></p>
 </div></section>
 
@@ -189,7 +195,7 @@ fbq('init',id);fbq('track','PageView');})();
 const S=window.SITE;
 document.querySelectorAll('[data-agency]').forEach(e=>e.textContent=S.agency);
 document.querySelectorAll('[data-reg]').forEach(e=>e.textContent=S.regNo);
-document.querySelector('[data-wa]').href='https://wa.me/'+S.whatsapp;
+document.querySelectorAll('[data-wa]').forEach(function(a){a.href='https://wa.me/'+S.whatsapp;});
 document.querySelector('[data-mail]').href='mailto:'+S.email;
 document.getElementById('yr').textContent=new Date().getFullYear();
 
