@@ -3,7 +3,7 @@
 window.QUESTIONS = [
   {key:'goal', title:'What are you looking to do?', sub:'Pick the closest match.', options:[
     {v:'My First Home (Buy)', sub:'Buying my first home'},
-    {v:'Upgrading', sub:'Moving up to a bigger or better home'},
+    {v:'Upgrading / Potentially upgrading', sub:'Check my numbers whether upgrading makes sense'},
     {v:'Investing in Property', sub:'Rental yield or capital gain'},
     {v:'Just Looking to Sell'}]},
   {key:'current', title:'What do you own today?', sub:'This affects stamp duty, CPF and loan position.', options:[
