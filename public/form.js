@@ -27,6 +27,9 @@ const order=[...Q.map(q=>q.key),'contact','done'];
 const steps=[...root.querySelectorAll('.step')], bar=root.querySelector('#bar'), back=root.querySelector('#back');
 let started=false;
 
+const skipped=n=>{const q=Q[n]; return !!(q&&q.skipIf&&q.skipIf(ans));};
+function next(n){do{n++}while(skipped(n));return n}
+function prev(n){do{n--}while(skipped(n));return n}
 function show(n,scroll){
   i=n; steps.forEach(s=>s.classList.toggle('on',s.dataset.step===order[n]));
   bar.style.width=(n/(order.length-2))*100+'%';
@@ -39,9 +42,9 @@ root.addEventListener('click',e=>{
   if(!started){started=true;track('QualifyStart');}
   g.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel')); b.classList.add('sel');
   ans[g.dataset.key]=b.dataset.v;
-  setTimeout(()=>show(i+1,true),160);
+  setTimeout(()=>show(next(i),true),160);
 });
-back.onclick=()=>show(i-1,true);
+back.onclick=()=>show(prev(i),true);
 
 root.querySelector('#submit').onclick=async(ev)=>{
   const btn=ev.currentTarget; if(btn.disabled) return;
@@ -50,17 +53,18 @@ root.querySelector('#submit').onclick=async(ev)=>{
     err.style.display='block';err.textContent='Please add your name, a valid number and tick the consent box.';return;
   }
   err.style.display='none'; btn.disabled=true; btn.textContent='Sending…';
-  Object.assign(ans,{name,phone,when:root.querySelector('#when').value,tier:window.scoreLead(ans),
+  const shown=Q.filter((q,n)=>!skipped(n));
+  Object.assign(ans,{name,phone,when:root.querySelector('#when').value,ad:window.AD_ID,
+    answers:shown.map(q=>({q:q.title,a:ans[q.key]||''})),
     submittedAt:new Date().toISOString(),source:new URLSearchParams(location.search).toString()||'direct'});
-  track('QualifyComplete',{tier:ans.tier});
-  try{window.fbq&&fbq('track','Lead',{content_category:ans.goal,value:0,currency:'SGD'})}catch(_){}
+  track('QualifyComplete',{ad:ans.ad});
+  try{window.fbq&&fbq('track','Lead',{content_category:ans.ad,value:0,currency:'SGD'})}catch(_){}
   if(S.leadEndpoint){
     try{await Promise.race([fetch(S.leadEndpoint,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(ans)}),new Promise(r=>setTimeout(r,4000))])}catch(_){}
   }
-  const lines=Q.map(q=>`${q.title.replace(/\?$/,'')}: ${ans[q.key]||'-'}`).join('\n');
+  const lines=shown.map(q=>`${q.title.replace(/\?$/,'')}: ${ans[q.key]||'-'}`).join('\n');
   root.querySelector('#waBtn').href='https://wa.me/'+S.whatsapp+'?text='+encodeURIComponent(`Hi ${S.name.split(' ')[0]}, I just filled in the form.\n${lines}\nName: ${name}`);
   root.querySelector('#nm').textContent=name.split(' ')[0];
-  if(ans.tier==='C') root.querySelector('#doneMsg').textContent="Since you're still exploring, I'll send you a market update and relevant analysis first, and we can talk when you're ready.";
   show(order.length-1,true);
 };
 show(0,false);

@@ -1,6 +1,8 @@
-// The questionnaire. Replace these with your own questions; the form builds itself from this list.
-// Each question: key (field name), title, sub (helper text), options [{v: stored value, sub: optional small text}]
-window.QUESTIONS = [
+// The questionnaires. One set per Meta ad, chosen by /qualify?ad=<id>; anything else gets the default set.
+// Each question: key (field name), title, sub (helper text), options [{v: stored value, sub: optional small text}],
+// optional skipIf(answers) to hide a question that does not apply.
+window.QUESTION_SETS = {
+default: [
   {key:'goal', title:'What are you looking to do?', sub:'Pick the closest match.', options:[
     {v:'My First Home (Buy)', sub:'Buying my first home'},
     {v:'Upgrading / Potentially upgrading', sub:'Check my numbers whether upgrading makes sense'},
@@ -17,15 +19,21 @@ window.QUESTIONS = [
     {v:'Singapore Citizen'},{v:'Permanent Resident'},{v:'Foreigner'},{v:'Mixed (e.g. citizen and PR)'}]},
   {key:'timeline', title:'When do you plan to buy?', sub:'An honest answer helps me tell you whether to act now or keep watching.', options:[
     {v:'Within 3 months'},{v:'3 to 6 months'},{v:'6 to 12 months'},{v:'Just exploring', sub:'No date yet'}]}
-];
-
-// Lead tier, mirroring the CRM: A = motivated and urgent, B = motivated not urgent, C = low urgency.
-// Edit this if your questions change.
-window.scoreLead = function(a){
-  const urgent = a.timeline==='Within 3 months' || a.timeline==='3 to 6 months';
-  const near = a.timeline==='6 to 12 months';
-  const lowBudget = a.budget==='Below $1.2M' && a.goal!=='Just Looking to Sell';
-  if(urgent && !lowBudget) return 'A';
-  if(urgent || near) return 'B';
-  return 'C';
+],
+cashflow: [
+  {key:'age', title:"What's your age?", options:[
+    {v:'30 and below'},{v:'31 to 40'},{v:'41 to 50'},{v:'51 and above'}]},
+  {key:'own', title:'What do you currently own?', options:[
+    {v:'HDB'},{v:'Condominium'},{v:'Landed property'},{v:"Don't currently own a property"}]},
+  {key:'income', title:'Total household monthly income?', options:[
+    {v:'Below $8,000'},{v:'$8,000 to $13,999'},{v:'$14,000 to $20,000'},{v:'More than $20,000'}]},
+  {key:'reason', title:'What was the main reason you bought your current property?', options:[
+    {v:'Kids school'},{v:'Size of property'},{v:'Location'}],
+    skipIf:a=>a.own==="Don't currently own a property"}
+]
 };
+(function(){
+  var ad=new URLSearchParams(location.search).get('ad');
+  window.AD_ID=(ad&&window.QUESTION_SETS[ad])?ad:'default';
+  window.QUESTIONS=window.QUESTION_SETS[window.AD_ID];
+})();
