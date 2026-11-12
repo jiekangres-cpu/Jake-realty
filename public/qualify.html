@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Check Your Property Options | Jake Yeo</title>
-<link rel="stylesheet" href="styles.css?v=20261027">
+<link rel="stylesheet" href="styles.css?v=20261112">
 <script src="config.js"></script>
 <script src="questions.js"></script>
 <script>
@@ -19,7 +19,32 @@ fbq('init',id);fbq('track','PageView');})();
   <a class="logo" href="index.html">JAKE <span>YEO</span></a>
   <span style="color:var(--mute);font-size:.85rem">2 min</span>
 </div></header>
-<main class="q-shell"><div id="qform"></div></main>
+<main class="q-shell">
+  <section id="adintro" hidden>
+    <img id="adimg" class="adimg" alt="">
+    <div class="adabout">
+      <h2>Hi, I'm Jake.</h2>
+      <p>I'm a realtor with <span data-agency></span>. I spent close to 6 years as a pricing data analyst in MNCs, and I now use over 40 million property datapoints to help clients plan their property: what to buy, keep or sell, and how it fits the rest of their net worth.</p>
+      <p>Answer a few quick questions and I'll come back to you on WhatsApp. No obligation.</p>
+      <button type="button" class="btn" id="adstart" style="width:100%">Start the questions</button>
+      <p class="fine"><span data-agency></span> · CEA Reg. <span data-reg></span></p>
+    </div>
+  </section>
+  <div id="qform"></div>
+</main>
+<script>
+(function(){
+  var intro=window.AD_INTROS&&window.AD_INTROS[window.AD_ID], box=document.getElementById('adintro'), form=document.getElementById('qform');
+  var S=window.SITE;
+  document.querySelectorAll('[data-agency]').forEach(function(e){e.textContent=S.agency});
+  document.querySelectorAll('[data-reg]').forEach(function(e){e.textContent=S.regNo});
+  if(!intro) return;
+  var img=document.getElementById('adimg'); img.src=intro.img; img.alt=intro.alt;
+  box.hidden=false; form.hidden=true;
+  document.getElementById('adstart').onclick=function(){box.hidden=true; form.hidden=false; window.scrollTo({top:0});
+    try{window.fbq&&fbq('trackCustom','AdIntroContinue',{ad:window.AD_ID})}catch(_){}};
+})();
+</script>
 <script src="form.js"></script>
 </body>
 </html>

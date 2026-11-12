@@ -37,3 +37,8 @@ cashflow: [
   window.AD_ID=(ad&&window.QUESTION_SETS[ad])?ad:'default';
   window.QUESTIONS=window.QUESTION_SETS[window.AD_ID];
 })();
+
+// Optional landing screen shown before the questions for a given ad: the ad graphic, then a short intro.
+window.AD_INTROS = {
+  cashflow: {img:'ad-cashflow.webp', alt:'Is most of your net worth in property? Two examples with $800k net worth each, one with $600k in property equity and one with $300k, showing how the split between property equity, retirement fund and emergency fund can differ.'}
+};
