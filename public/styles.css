@@ -275,6 +275,7 @@ p.lead,.subtitle,.fine{max-width:none!important}
 @media(max-width:999px){.mtabs{justify-content:space-around;gap:0;padding:0 8px}.mtabs a{flex:1;text-align:center;font-size:.9rem}}
 
 #adintro{display:flex;flex-direction:column;padding:0;min-height:calc(100svh - 110px)}
+#adintro .adabout{padding-bottom:6px}
 .adpage .q-shell{padding-bottom:0}
 .adzoom{display:block;margin:0 auto;padding:0;border:0;background:none;cursor:zoom-in;text-align:center;font:inherit}
 .adimg{display:block;height:min(32svh,420px);width:auto;max-width:100%;border-radius:12px;border:1px solid var(--line,#e2ddd2)}
@@ -285,7 +286,11 @@ p.lead,.subtitle,.fine{max-width:none!important}
 .admore summary{cursor:pointer;color:var(--gold,#8a6a2f);font-weight:600;font-size:.9rem;margin-bottom:8px}
 .adcta{margin-top:auto;padding-top:12px;position:sticky;bottom:0;background:var(--bg,#f4f1ea);padding-bottom:14px}
 .adcta .fine{margin:6px 0 0;text-align:center;font-size:.74rem;line-height:1.35}
-#lb{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.92);display:flex;align-items:center;justify-content:center;padding:12px;cursor:zoom-out}
+#lb{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.92);display:flex;align-items:center;justify-content:center;padding:12px;cursor:zoom-out;overflow:auto;-webkit-overflow-scrolling:touch}
+#lb.wide{align-items:flex-start;justify-content:flex-start}
+#lb.wide img{width:min(240vw,1920px);max-width:none;max-height:none;flex:none}
 #lb[hidden]{display:none}
 #lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
 #qform[hidden],#adintro[hidden]{display:none}
+.adzoom2{margin:14px 0 4px;width:100%}
+.dataimg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line,#e2ddd2)}

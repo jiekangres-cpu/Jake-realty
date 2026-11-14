@@ -40,5 +40,5 @@ cashflow: [
 
 // Optional landing screen shown before the questions for a given ad: the ad graphic, then a short intro.
 window.AD_INTROS = {
-  cashflow: {img:'ad-cashflow.webp', alt:'Is most of your net worth in property? Two examples with $800k net worth each, one with $600k in property equity and one with $300k, showing how the split between property equity, retirement fund and emergency fund can differ.'}
+  cashflow: {dataImg:'data-snapshot.webp', dataAlt:'A sample of the project list in my database: 1.7 million HDB and private transactions, over 3,000 projects and 35 data categories, with ten example projects showing district, region, completion year, units, nearest MRT, deals on record, median psf and how each compares with its region.', img:'ad-cashflow.webp', alt:'Is most of your net worth in property? Two examples with $800k net worth each, one with $600k in property equity and one with $300k, showing how the split between property equity, retirement fund and emergency fund can differ.'}
 };

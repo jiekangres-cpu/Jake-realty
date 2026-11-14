@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Check Your Property Options | Jake Yeo</title>
-<link rel="stylesheet" href="styles.css?v=20261113">
+<link rel="stylesheet" href="styles.css?v=20261114">
 <script src="config.js"></script>
 <script src="questions.js"></script>
 <script>
@@ -28,9 +28,11 @@ fbq('init',id);fbq('track','PageView');})();
     <div class="adabout">
       <h2>Hi, I'm Jake.</h2>
       <p>I'm a realtor with <span data-agency></span>, a subsidiary of PropNex. I spent close to 6 years as a pricing data analyst in MNCs, and now I use my data expertise to help clients plan their property: what to buy, sell or keep, and how it fits the rest of their net worth.</p>
-      <details class="admore"><summary>More about my data</summary>
-        <p>With my database of over 1.7 million HDB and private property transactions across more than 3,000 projects and 35 data categories, I track historic patterns, cooling measures and macro-economic factors to help my clients make their moves confidently and decisively.</p>
-      </details>
+      <p>With my database of over 1.7 million HDB and private property transactions across more than 3,000 projects and 35 data categories, I track historic patterns, cooling measures and macro-economic factors to help my clients make their moves confidently and decisively.</p>
+      <button type="button" class="adzoom adzoom2" id="datazoom" aria-label="Enlarge the data snapshot">
+        <img id="dataimg" class="dataimg" alt="">
+        <span>Tap to enlarge my data</span>
+      </button>
     </div>
     <div class="adcta">
       <button type="button" class="btn" id="adstart" style="width:100%">Start the questions</button>
@@ -48,8 +50,11 @@ fbq('init',id);fbq('track','PageView');})();
   document.querySelectorAll('[data-reg]').forEach(function(e){e.textContent=S.regNo});
   if(!intro) return;
   var img=document.getElementById('adimg'); img.src=intro.img; img.alt=intro.alt;
-  var lb=document.getElementById('lb'), lbimg=document.getElementById('lbimg'); lbimg.src=intro.img; lbimg.alt=intro.alt;
-  document.getElementById('adzoom').onclick=function(){lb.hidden=false;try{window.fbq&&fbq('trackCustom','AdZoom',{ad:window.AD_ID})}catch(_){}};
+  var lb=document.getElementById('lb'), lbimg=document.getElementById('lbimg');
+  var dimg=document.getElementById('dataimg'); dimg.src=intro.dataImg; dimg.alt=intro.dataAlt;
+  function openLb(src,alt,wide,ev){lbimg.src=src; lbimg.alt=alt; lb.classList.toggle('wide',!!wide); lb.hidden=false; lb.scrollTop=0; lb.scrollLeft=0; try{window.fbq&&fbq('trackCustom',ev,{ad:window.AD_ID})}catch(_){}}
+  document.getElementById('adzoom').onclick=function(){openLb(intro.img,intro.alt,false,'AdZoom')};
+  document.getElementById('datazoom').onclick=function(){openLb(intro.dataImg,intro.dataAlt,true,'DataZoom')};
   lb.onclick=function(){lb.hidden=true};
   document.addEventListener('keydown',function(e){if(e.key==='Escape')lb.hidden=true});
   box.hidden=false; form.hidden=true; document.body.classList.add('adpage');
