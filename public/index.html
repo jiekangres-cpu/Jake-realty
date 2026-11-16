@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jake Yeo | Singapore Property Advisor</title>
 <meta name="description" content="Data-led property advice for Singapore buyers, upgraders and investors. Pricing analysis, exit planning and a clear next step.">
-<link rel="stylesheet" href="styles.css?v=20261119">
+<link rel="stylesheet" href="styles.css?v=20261122">
 <script src="config.js"></script>
 <script src="questions.js"></script>
 <script src="data.js"></script>
@@ -152,7 +152,7 @@ fbq('init',id);fbq('track','PageView');})();
     <p>In 2018, my parents' estate en bloc-ed. For my family, it felt like a windfall. Then the developer called it off, and what followed was years in court. I watched my parents wait, hope, and wait again.</p>
     <p>In November 2021, the court ruled for the developer, and the en bloc was cancelled. It all came down to a clause in the paperwork. Not only did the committee owe legal fees, even the deposit had to be forfeited, because of 1 small detail. Real Estate has no margin for error, it's undoubtedly the largest asset of people's lives, and every detail matters.</p>
   </div>
-  <div class="portrait stack rv"><img src="about-linkedin.webp" alt="Jake Yeo, experience: JNA Real Estate, Festo, Toyota Motor Asia Pacific" width="1080" height="1080" loading="lazy"><img src="about-awards.webp" alt="Jake Yeo at the PropNex Leaders &amp; Achievers Awards 2026" width="1080" height="1350" loading="lazy"></div>
+  <div class="portrait collage rv"><img src="about-collage.webp" alt="Jake Yeo: experience at JNA Real Estate, Festo and Toyota; PropNex Leaders &amp; Achievers Awards 2026; client review from Wendy Ng" width="1280" height="1600" loading="lazy"><button type="button" class="zoomhint" id="collagezoom">Tap to enlarge</button></div>
 </div></section>
 
 
@@ -236,5 +236,7 @@ addEventListener('load',()=>{layout();onScroll()});
 layout();onScroll();
 setTimeout(()=>{layout();onScroll()},800); // late layout shifts (chart, fonts)
 </script>
+<div id="lb" hidden><img id="lbimg" alt=""></div>
+<script>(function(){var lb=document.getElementById("lb"),im=document.getElementById("lbimg"),src=document.querySelector(".portrait.collage img"),b=document.getElementById("collagezoom");function o(){im.src=src.src;im.alt=src.alt;lb.classList.toggle("wide",innerWidth<800);lb.hidden=false;lb.scrollTop=0;lb.scrollLeft=0;try{window.fbq&&fbq("trackCustom","AboutZoom")}catch(_){}}if(src){src.style.cursor="zoom-in";src.onclick=o;b.onclick=o}lb.onclick=function(){lb.hidden=true};document.addEventListener("keydown",function(e){if(e.key==="Escape")lb.hidden=true})})();</script>
 </body>
 </html>

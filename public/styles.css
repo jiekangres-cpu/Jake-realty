@@ -303,3 +303,10 @@ p.lead,.subtitle,.fine{max-width:none!important}
 @supports(height:1svh){.portrait.stack img{width:min(100%,calc((100svh - 140px)/2.25))!important}}
 @media(min-width:801px){.about-split .portrait.stack{position:sticky;top:28px}}
 @media(max-width:800px){.portrait.stack img{width:min(100%,calc((100svh - 150px)/2.25))!important}}
+
+/* about: single collage image (4:5) sized to fit one screen */
+.portrait.collage img{width:min(100%,calc((100vh - 140px)/1.25))!important;height:auto!important;border-radius:14px;-webkit-mask-image:none!important;mask-image:none!important}
+@supports(height:1svh){.portrait.collage img{width:min(100%,calc((100svh - 140px)/1.25))!important}}
+@media(min-width:801px){.about-split .portrait.collage{position:sticky;top:28px}}
+@media(max-width:800px){.portrait.collage img{width:min(100%,calc((100svh - 150px)/1.25))!important}}
+.zoomhint{display:block;margin:8px auto 0;background:none;border:0;font:inherit;font-size:.82rem;color:var(--muted,#6b6b6b);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
