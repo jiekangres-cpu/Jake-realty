@@ -294,3 +294,8 @@ p.lead,.subtitle,.fine{max-width:none!important}
 #qform[hidden],#adintro[hidden]{display:none}
 .adzoom2{margin:14px 0 4px;width:100%}
 .dataimg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line,#e2ddd2)}
+
+/* about: two stacked photos */
+.portrait.stack{display:flex!important;flex-direction:column;gap:14px}
+.portrait.stack img{width:100%!important;height:auto!important;margin:0;border-radius:14px;-webkit-mask-image:none!important;mask-image:none!important}
+@media(min-width:801px){.about-split .portrait.stack{position:static}}
