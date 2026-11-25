@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jake Yeo | Singapore Property Advisor</title>
 <meta name="description" content="Data-led property advice for Singapore buyers, upgraders and investors. Pricing analysis, exit planning and a clear next step.">
-<link rel="stylesheet" href="styles.css?v=20261126">
+<link rel="stylesheet" href="styles.css?v=20261132">
 <script src="config.js"></script>
 <script src="questions.js"></script>
 <script src="data.js"></script>
@@ -184,8 +184,20 @@ fbq('init',id);fbq('track','PageView');})();
   <p class="lead rv d1" style="margin-bottom:0">I scrape every current PropertyGuru listing in Singapore's larger completed condos (leasehold 250+ units, freehold 100+) and compare the asking price per sq ft with what resale units sold for this year.</p>
   <div class="tiles rv d2" id="pjTiles"></div>
   <div class="pjcards rv d3" id="pjCards"></div>
+  <div class="chartcard pjchart rv d3" id="pjChartCard">
+    <div class="pjch"><div><h3 id="pjTitle">Project chart</h3><p class="fine" id="pjSub" style="margin:2px 0 0"></p></div></div>
+    <div class="pjfilters">
+      <div class="pjbeds" id="pjBeds" role="group" aria-label="Bedrooms"></div>
+      <label class="switch"><input type="checkbox" id="pjNew" checked><span class="track"><i></i></span><span class="swtxt"><b>Include new sales</b><em>Off shows resale only</em></span></label>
+    </div>
+    <div class="legend pjlegend" id="pjLegend"></div>
+    <div id="pjSvg" class="pjsvg"></div>
+    <div id="pjTip" class="tip" hidden></div>
+    <p class="fine" id="pjLatest" style="margin:6px 4px 4px"></p>
+  </div>
   <div class="runs rv d3" id="pjTable">
     <h3>Project by project</h3>
+    <p class="fine" style="margin:0 0 10px">Tap a project to chart it above.</p>
     <div class="pjtools"><input type="search" id="pjSearch" placeholder="Search a project" aria-label="Search a project" autocomplete="off"><select id="pjRegion" aria-label="Region"><option value="">All regions</option></select></div>
     <div class="tblwrap"><table class="pjtbl"><thead><tr><th data-k="name">Project</th><th data-k="askPsf" class="n">Asking psf</th><th data-k="soldPsf" class="n">Sold psf</th><th data-k="premium" class="n on">Gap</th></tr></thead><tbody id="pjBody"></tbody></table></div>
     <p class="pjmore"><button type="button" id="pjMore" class="btn ghost">Show more</button></p>

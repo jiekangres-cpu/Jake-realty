@@ -42,6 +42,7 @@ function draw(){
   const a=rows(), body=$('pjBody'); body.textContent='';
   a.slice(0,shown).forEach(r=>{
     const tr=document.createElement('tr'),td=document.createElement('td');
+    if(r[C.slug]){tr.className='pick';tr.tabIndex=0;tr.onclick=()=>pickProject(r[C.slug],true);tr.onkeydown=e=>{if(e.key==='Enter')pickProject(r[C.slug],true)}}
     td.append(mk('span','pn',r[C.name]));
     const meta=[r[C.listings]+' listing'+(r[C.listings]>1?'s':''),r[C.txns]+' sales in 2026',r[C.region],r[C.tenure]==='Freehold'?'Freehold':'99-yr',r[C.age]!=null?r[C.age]+' yrs old':''].filter(Boolean).join(' · ');
     td.append(mk('small','',meta));
@@ -63,4 +64,100 @@ document.querySelectorAll('.pjtbl th').forEach(th=>th.onclick=()=>{
 });
 $('pjFine').textContent='Asking prices: PropertyGuru for-sale listings, collected '+D.asof+'. Sold prices: URA resale transactions (apartments and condos) in 2026 so far. Asking prices are what sellers want, not what buyers pay, and a project’s gap moves with its unit mix, so treat it as a guide. Projects with fewer than 5 resale sales this year are left out so one sale cannot set the gap.';
 draw();
+// ---- project chart: 3 psf lines (project, district, region) + stacked new/resale volume bars
+const PER=D.periods||[], NP=PER.length;
+const NS='http://www.w3.org/2000/svg';
+const sv=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.append(e);return e};
+const CL={proj:'#946a22',dist:'#1f6fb2',reg:'#7d7a72',res:'#e2cf9c',nw:'#4a6a9c'};
+const BEDS=[[0,'All'],[1,'1 bed'],[2,'2 bed'],[3,'3 bed'],[4,'4 bed'],[5,'5+ bed']];
+let proj=null, seg=null, bed=0, inclNew=true, segP=null;
+const cache={};
+const lastLab=i=>PER[i]+(i===NP-1?' (to Oct)':'');
+const getJSON=u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()});
+async function pickProject(slug,scroll){
+  try{
+    if(!segP) segP=getJSON('pj/segments.json');
+    seg=await segP;
+    proj=cache[slug]||(cache[slug]=await getJSON('pj/'+slug+'.json'));
+    proj.slug=slug;
+    const row=D.rows.find(r=>r[C.slug]===slug); proj.row=row;
+    buildBeds(); renderChart();
+    if(scroll) $('pjChartCard').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ console.error('pjChart',e); $('pjSvg').textContent='Could not load this chart. Try again in a moment.'; }
+}
+function vol(b,k){return proj.series[b][k].reduce((a,x)=>a+x,0)}
+function buildBeds(){
+  const box=$('pjBeds'); box.textContent='';
+  if(vol(bed,2)+vol(bed,3)===0) bed=0;
+  BEDS.forEach(([b,l])=>{
+    const tot=vol(b,2)+vol(b,3), btn=mk('button','pjchip'+(b===bed?' on':''),l);
+    btn.type='button'; btn.disabled=tot===0; btn.title=tot===0?'No sales in this project':'';
+    btn.onclick=()=>{bed=b;box.querySelectorAll('.pjchip').forEach(x=>x.classList.toggle('on',x===btn));renderChart()};
+    box.append(btn);
+  });
+}
+$('pjNew').onchange=e=>{inclNew=e.target.checked;if(proj)renderChart()};
+function renderChart(){
+  const S=proj.series[bed], dS=(seg.district[proj.district]||{})[bed], rS=(seg.region[proj.region]||{})[bed];
+  const k=inclNew?0:1, P=S[k], DD=dS?dS[k]:[], RR=rS?rS[k]:[], VN=S[2], VR=S[3];
+  const dLab='District '+Number(proj.district), rLab=proj.region+' Region';
+  $('pjTitle').textContent=proj.name;
+  const r=proj.row;
+  $('pjSub').textContent=[dLab,rLab,r&&r[C.units]?num(r[C.units])+' units':'',r&&r[C.age]!=null?r[C.age]+' yrs old':'',bed?BEDS[bed][1]+' units':'All unit sizes',inclNew?'New and resale':'Resale only'].filter(Boolean).join(' · ');
+  const lg=$('pjLegend'); lg.textContent='';
+  const sw=(c,t,kind)=>{const s=mk('span');const i=mk('i','lg '+kind);i.style.background=kind==='sq'?c:'';i.style.borderColor=c;if(kind==='line')i.style.background=c;s.append(i,document.createTextNode(t));lg.append(s)};
+  sw(CL.proj,'This project','line');sw(CL.dist,dLab,'line');sw(CL.reg,rLab,'line');sw(CL.res,'Resale sales','sq');if(inclNew)sw(CL.nw,'New sales','sq');
+  const host=$('pjSvg'); host.textContent='';
+  const have=P.some(v=>v!=null);
+  const vals=[].concat(P,DD,RR).filter(v=>v!=null);
+  if(!vals.length||(!have&&!VR.some(x=>x)&&!VN.some(x=>x))){host.append(mk('p','fine','No sales for this filter.'));$('pjLatest').textContent='';return}
+  const W=Math.max(300,host.clientWidth||340), H=W<520?300:360, ml=46, mr=34, mt=10, mb=26, pw=W-ml-mr, ph=H-mt-mb;
+  let lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals); const pad=(hi-lo)*.1||100, rawStep=(hi-lo+2*pad)/4, step=[50,100,200,250,500,1000].find(x=>x>=rawStep)||1000; lo=Math.max(0,Math.floor((lo-pad)/step)*step); hi=Math.ceil((hi+pad)/step)*step;
+  const barH=ph*.32, vmax=Math.max(1,Math.max.apply(null,VR.map((x,i)=>x+(inclNew?VN[i]:0))));
+  const X=i=>ml+(i+.5)*pw/NP, Y=v=>mt+ph-(v-lo)/(hi-lo)*ph, bw=pw/NP*.62;
+  const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Price per sq ft for '+proj.name+' against its district and region, with new and resale sales volume'},host);
+  svg.style.display='block';
+  for(let v=lo;v<=hi+1e-6;v+=step){const y=Y(v);sv('line',{x1:ml,x2:W-mr,y1:y,y2:y,stroke:'#e9e4d8','stroke-width':1},svg);const tx=sv('text',{x:ml-6,y:y+4,'text-anchor':'end','font-size':11,fill:'#6b6962'},svg);tx.textContent='$'+num(Math.round(v))}
+  for(let t=0;t<=2;t++){const v=Math.round(vmax*t/2), y=mt+ph-barH*(v/vmax);const tx=sv('text',{x:W-mr+5,y:y+4,'font-size':10.5,fill:'#6b6962'},svg);tx.textContent=v}
+  const lab=sv('text',{x:W-mr+5,y:mt+ph-barH-8,'font-size':10,fill:'#6b6962'},svg);lab.textContent='sales';
+  // bars
+  for(let i=0;i<NP;i++){
+    const r=VR[i]||0, n=inclNew?(VN[i]||0):0, x=X(i)-bw/2, base=mt+ph;
+    const hr=barH*r/vmax, hn=barH*n/vmax;
+    if(r) sv('rect',{x,y:base-hr,width:bw,height:hr,fill:CL.res,opacity:.9,rx:1.5},svg);
+    if(n) sv('rect',{x,y:base-hr-hn,width:bw,height:hn,fill:CL.nw,opacity:.85,rx:1.5},svg);
+  }
+  // x labels
+  for(let i=0;i<NP;i++){ if(i%(W<520?4:2)===0){const tx=sv('text',{x:X(i)+pw/NP*.5,y:H-8,'text-anchor':'middle','font-size':11,fill:'#6b6962'},svg);tx.textContent=PER[i].slice(0,4)} }
+  // lines
+  const line=(arr,color,w,dash,dots)=>{
+    let d='',pen=false; arr.forEach((v,i)=>{if(v==null)return;d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);pen=true});
+    if(!d)return; sv('path',{d,fill:'none',stroke:color,'stroke-width':w,'stroke-dasharray':dash||'none','stroke-linejoin':'round','stroke-linecap':'round'},svg);
+    if(dots) arr.forEach((v,i)=>{if(v!=null)sv('circle',{cx:X(i),cy:Y(v),r:3,fill:'#fff',stroke:color,'stroke-width':1.8},svg)});
+  };
+  line(RR,CL.reg,2,'5 4');line(DD,CL.dist,2);line(P,CL.proj,2.8,null,true);
+  // hover
+  const guide=sv('line',{y1:mt,y2:mt+ph,stroke:'#946a22','stroke-width':1,opacity:0,'stroke-dasharray':'3 3'},svg);
+  const ov=sv('rect',{x:ml,y:mt,width:pw,height:ph,fill:'transparent'},svg), tip=$('pjTip');
+  const show=ev=>{
+    const b=svg.getBoundingClientRect(), px=(ev.clientX-b.left)*(W/b.width); const i=Math.min(NP-1,Math.max(0,Math.floor((px-ml)/(pw/NP))));
+    guide.setAttribute('x1',X(i));guide.setAttribute('x2',X(i));guide.setAttribute('opacity',1);
+    const f=v=>v==null?'no sales':'$'+num(v)+' psf';
+    tip.textContent='';
+    tip.append(mk('b','',lastLab(i)));
+    [['This project',P[i],CL.proj],[dLab,DD[i],CL.dist],[rLab,RR[i],CL.reg]].forEach(a=>{const d=mk('div','pjtl');const dot=mk('i');dot.style.background=a[2];d.append(dot,document.createTextNode(a[0]+': '+f(a[1])));tip.append(d)});
+    tip.append(mk('div','pjtl muted','Resale sales: '+VR[i]+(inclNew?' · New sales: '+VN[i]:'')));
+    tip.hidden=false; const cb=$('pjChartCard').getBoundingClientRect(), x=(X(i)*b.width/W)+(b.left-cb.left), tw=tip.offsetWidth;
+    tip.style.left=Math.max(4,Math.min(cb.width-tw-4,x-tw/2))+'px'; tip.style.top=(b.top-cb.top+6)+'px';
+  };
+  ov.addEventListener('pointermove',show);ov.addEventListener('pointerdown',show);
+  ov.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('opacity',0)});
+  // latest line
+  const last=a=>{for(let i=a.length-1;i>=0;i--) if(a[i]!=null) return [a[i],PER[i]];return null};
+  const lp=last(P),ld=last(DD),lr=last(RR);
+  $('pjLatest').textContent=lp?('Latest: this project $'+num(lp[0])+' psf ('+lp[1]+')'+(ld?' · '+dLab+' $'+num(ld[0]):'')+(lr?' · '+rLab+' $'+num(lr[0]):'')+'. Median price per sq ft by half-year; sub sales left out.'):'This project has no sales for this filter. District and region lines still show.';
+}
+addEventListener('resize',()=>{if(proj)renderChart()});
+if(D.rows.length&&C.slug!=null){const top=D.rows.reduce((a,r)=>r[C.txns]>a[C.txns]?r:a,D.rows[0]); if(top[C.slug]) pickProject(top[C.slug],false);}
+
 })();

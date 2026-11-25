@@ -340,3 +340,19 @@ p.lead,.subtitle,.fine{max-width:none!important}
 .pjtbl td:first-child{grid-column:1/-1;padding-bottom:6px}
 .pjtbl td.n::before{content:attr(data-l);display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);font-weight:500}
 }
+
+/* project chart */
+.pjchart{margin-top:16px;padding:16px 14px 10px;scroll-margin-top:120px}
+.pjch h3{font-size:1.15rem;margin:0}
+.pjfilters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0 4px}
+.pjfilters .switch{margin:0;flex:1;min-width:210px}
+.pjbeds{display:flex;gap:6px;flex-wrap:wrap}
+.pjchip{font:inherit;font-size:.86rem;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:99px;cursor:pointer;color:var(--ink)}
+.pjchip.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.pjchip:disabled{opacity:.4;cursor:default}
+.pjlegend{margin:8px 0 2px}.pjlegend span{display:inline-flex;align-items:center;gap:6px;margin-right:14px;font-size:.82rem;color:var(--mute)}
+.pjlegend i.lg{display:inline-block}.pjlegend i.line{width:20px;height:3px;border-radius:2px}.pjlegend i.sq{width:11px;height:11px;border-radius:2px;border:0}
+.pjsvg{position:relative}
+.pjchart .tip{min-width:190px}
+.pjtl{display:flex;align-items:center;gap:6px;font-size:.84rem;margin-top:3px}.pjtl i{display:inline-block;width:9px;height:9px;border-radius:50%}.pjtl.muted{color:var(--mute);padding-left:15px}
+.pjtbl tr.pick{cursor:pointer}.pjtbl tr.pick:hover{background:#faf6ea}
