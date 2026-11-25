@@ -103,10 +103,10 @@ function renderChart(){
   const dLab='District '+Number(proj.district), rLab=proj.region+' Region';
   $('pjTitle').textContent=proj.name;
   const r=proj.row;
-  $('pjSub').textContent=[dLab,rLab,r&&r[C.units]?num(r[C.units])+' units':'',r&&r[C.age]!=null?r[C.age]+' yrs old':'',bed?BEDS[bed][1]+' units':'All unit sizes',inclNew?'New and resale':'Resale only'].filter(Boolean).join(' · ');
+  $('pjSub').textContent=[dLab,rLab,r&&r[C.units]?num(r[C.units])+' units':'',r&&r[C.age]!=null?r[C.age]+' yrs old':'',bed?BEDS[bed][1]+' units':'All unit sizes',inclNew?'New and open market':'Open market only'].filter(Boolean).join(' · ');
   const lg=$('pjLegend'); lg.textContent='';
   const sw=(c,t,kind)=>{const s=mk('span');const i=mk('i','lg '+kind);i.style.background=kind==='sq'?c:'';i.style.borderColor=c;if(kind==='line')i.style.background=c;s.append(i,document.createTextNode(t));lg.append(s)};
-  sw(CL.proj,'This project','line');sw(CL.dist,dLab,'line');sw(CL.reg,rLab,'line');sw(CL.res,'Resale sales','sq');if(inclNew)sw(CL.nw,'New sales','sq');
+  sw(CL.proj,'This project','line');sw(CL.dist,dLab,'line');sw(CL.reg,rLab,'line');sw(CL.res,'Project open market sales','sq');if(inclNew)sw(CL.nw,'Project new sales','sq');
   const host=$('pjSvg'); host.textContent='';
   const have=P.some(v=>v!=null);
   const vals=[].concat(P,DD,RR).filter(v=>v!=null);
@@ -115,7 +115,7 @@ function renderChart(){
   let lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals); const pad=(hi-lo)*.1||100, rawStep=(hi-lo+2*pad)/4, step=[50,100,200,250,500,1000].find(x=>x>=rawStep)||1000; lo=Math.max(0,Math.floor((lo-pad)/step)*step); hi=Math.ceil((hi+pad)/step)*step;
   const barH=ph*.32, vmax=Math.max(1,Math.max.apply(null,VR.map((x,i)=>x+(inclNew?VN[i]:0))));
   const X=i=>ml+(i+.5)*pw/NP, Y=v=>mt+ph-(v-lo)/(hi-lo)*ph, bw=pw/NP*.62;
-  const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Price per sq ft for '+proj.name+' against its district and region, with new and resale sales volume'},host);
+  const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':'Price per sq ft for '+proj.name+' against its district and region, with new and open market sales volume (this project only)'},host);
   svg.style.display='block';
   for(let v=lo;v<=hi+1e-6;v+=step){const y=Y(v);sv('line',{x1:ml,x2:W-mr,y1:y,y2:y,stroke:'#e9e4d8','stroke-width':1},svg);const tx=sv('text',{x:ml-6,y:y+4,'text-anchor':'end','font-size':11,fill:'#6b6962'},svg);tx.textContent='$'+num(Math.round(v))}
   for(let t=0;t<=2;t++){const v=Math.round(vmax*t/2), y=mt+ph-barH*(v/vmax);const tx=sv('text',{x:W-mr+5,y:y+4,'font-size':10.5,fill:'#6b6962'},svg);tx.textContent=v}
@@ -146,7 +146,7 @@ function renderChart(){
     tip.textContent='';
     tip.append(mk('b','',lastLab(i)));
     [['This project',P[i],CL.proj],[dLab,DD[i],CL.dist],[rLab,RR[i],CL.reg]].forEach(a=>{const d=mk('div','pjtl');const dot=mk('i');dot.style.background=a[2];d.append(dot,document.createTextNode(a[0]+': '+f(a[1])));tip.append(d)});
-    tip.append(mk('div','pjtl muted','Resale sales: '+VR[i]+(inclNew?' · New sales: '+VN[i]:'')));
+    tip.append(mk('div','pjtl muted','Open market sales: '+VR[i]+(inclNew?' · New sales: '+VN[i]:'')));
     tip.hidden=false; const cb=$('pjChartCard').getBoundingClientRect(), x=(X(i)*b.width/W)+(b.left-cb.left), tw=tip.offsetWidth;
     tip.style.left=Math.max(4,Math.min(cb.width-tw-4,x-tw/2))+'px'; tip.style.top=(b.top-cb.top+6)+'px';
   };
@@ -155,7 +155,7 @@ function renderChart(){
   // latest line
   const last=a=>{for(let i=a.length-1;i>=0;i--) if(a[i]!=null) return [a[i],PER[i]];return null};
   const lp=last(P),ld=last(DD),lr=last(RR);
-  $('pjLatest').textContent=lp?('Latest: this project $'+num(lp[0])+' psf ('+lp[1]+')'+(ld?' · '+dLab+' $'+num(ld[0]):'')+(lr?' · '+rLab+' $'+num(lr[0]):'')+'. Median price per sq ft by half-year; sub sales left out.'):'This project has no sales for this filter. District and region lines still show.';
+  $('pjLatest').textContent=lp?('Latest: this project $'+num(lp[0])+' psf ('+lp[1]+')'+(ld?' · '+dLab+' $'+num(ld[0]):'')+(lr?' · '+rLab+' $'+num(lr[0]):'')+'. Median price per sq ft by half-year. Open market = resale plus sub sales.'):'This project has no sales for this filter. District and region lines still show.';
 }
 addEventListener('resize',()=>{if(proj)renderChart()});
 if(D.rows.length&&C.slug!=null){const top=D.rows.reduce((a,r)=>r[C.txns]>a[C.txns]?r:a,D.rows[0]); if(top[C.slug]) pickProject(top[C.slug],false);}

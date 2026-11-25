@@ -1,12 +1,12 @@
 """Builds per-project psf/volume series for the Projects chart.
 Outputs public/pj/<slug>.json (one per project in projects-data.js) and public/pj/segments.json (district and region lines).
 Run build/projects_data.py first, then this script (it adds slugs and periods to projects-data.js).
-Periods are half-years from 2017. Sale types: New Sale and Resale only (Sub Sale left out everywhere).
+Periods are half-years from 2017. Sale types: New Sale, and Open market = Resale + Sub Sale (the JSON 'vr' volume and the resale-only psf (second array) are open market).
 Bedroom filter uses Confirmed and Confirmed (stack) tags only (key 0 = all rows, whatever the tag)."""
 import json, re, os, numpy as np, pandas as pd
 ROOT="/Volumes/Crucial SSD/Claude AI/data/"
 d=pd.read_parquet(ROOT+"Transactions-data/Mirror/Total Transactions.parquet",columns=['Project Name','Unit Price ($ PSF)','Sale Date','Type of Sale','Property Type','Postal District','Planning Region','Size (Bedrooms)','Bedroom Status'])
-d=d[d['Type of Sale'].isin(['New Sale','Resale'])&d['Unit Price ($ PSF)'].notna()&(d['Unit Price ($ PSF)']>0)].copy()
+d=d[d['Type of Sale'].isin(['New Sale','Resale','Sub Sale'])&d['Unit Price ($ PSF)'].notna()&(d['Unit Price ($ PSF)']>0)].copy()
 d=d[d['Sale Date']>='2017-01-01']
 d['p']=(d['Sale Date'].dt.year-2017)*2+(d['Sale Date'].dt.month>6).astype(int)
 NP=int(d['p'].max())+1
