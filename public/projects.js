@@ -14,6 +14,7 @@ const tiles=[[D.projects.toLocaleString('en-SG'),'Large condos with 5+ resale sa
 tiles.forEach(t=>{const d=mk('div','tile');d.append(mk('b','',t[0]),mk('span','',t[1]));$('pjTiles').append(d)});
 
 // bar cards
+if($('pjCards')){
 const cards=[['By region',D.region,'Planning region'],['By tenure',D.tenure,''],['By age of the building',D.age,''],['By bedrooms',D.beds,'Same project and bedroom count']];
 const max=Math.max.apply(null,cards.flatMap(c=>c[1].map(r=>r[2])));
 cards.forEach(c=>{
@@ -27,6 +28,8 @@ cards.forEach(c=>{
   $('pjCards').append(card);
 });
 
+}
+if(!$('pjBody')) return;
 // table
 const C={}; D.cols.forEach((k,i)=>C[k]=i);
 let sortK='premium', dir=1, q='', reg='', shown=12;

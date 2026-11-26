@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project by Project Analysis | Jake Yeo</title>
+<meta name="description" content="Asking vs sold price per sq ft for 500+ large Singapore condos, with price and volume charts by project, district and region.">
+<link rel="stylesheet" href="styles.css?v=20261135">
+<script src="config.js"></script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html">JAKE <span>YEO</span></a>
+  <nav class="mnav"><a class="btn ghost sm" href="index.html#projects">Back to summary</a> <a class="btn sm" href="index.html#qualify">Check my options</a></nav>
+</div></header>
+<main>
+<section class="screen alt" id="projects"><div class="wrap">
+  <div class="eyebrow rv in">Large condos</div>
+  <h2 class="rv in">Project by project analysis</h2>
+  <p class="lead rv in" style="margin-bottom:0">Pick any large condo to see its price per sq ft against its district and planning region, with the volume of new and open market sales behind it.</p>
+  <div class="tiles rv in" id="pjTiles"></div>
+  <div class="chartcard pjchart rv in" id="pjChartCard">
+    <div class="pjch"><div><h3 id="pjTitle">Project chart</h3><p class="fine" id="pjSub" style="margin:2px 0 0"></p></div></div>
+    <div class="pjfilters">
+      <div class="pjbeds" id="pjBeds" role="group" aria-label="Bedrooms"></div>
+      <label class="switch"><input type="checkbox" id="pjNew" checked><span class="track"><i></i></span><span class="swtxt"><b>Include new sales</b><em>Off shows open market only (resale and sub sales)</em></span></label>
+    </div>
+    <div class="legend pjlegend" id="pjLegend"></div>
+    <div id="pjSvg" class="pjsvg"></div>
+    <div id="pjTip" class="tip" hidden></div>
+    <p class="fine" id="pjLatest" style="margin:6px 4px 4px"></p>
+  </div>
+  <div class="runs rv in" id="pjTable">
+    <h3>Project by project</h3>
+    <p class="fine" style="margin:0 0 10px">Tap a project to chart it above.</p>
+    <div class="pjtools"><input type="search" id="pjSearch" placeholder="Search a project" aria-label="Search a project" autocomplete="off"><select id="pjRegion" aria-label="Region"><option value="">All regions</option></select></div>
+    <div class="tblwrap"><table class="pjtbl"><thead><tr><th data-k="name">Project</th><th data-k="askPsf" class="n">Asking psf</th><th data-k="soldPsf" class="n">Sold psf</th><th data-k="premium" class="n on">Gap</th></tr></thead><tbody id="pjBody"></tbody></table></div>
+    <p class="pjmore"><button type="button" id="pjMore" class="btn ghost">Show more</button></p>
+    <p class="fine" id="pjCount"></p>
+  </div>
+  <p class="fine rv in" id="pjFine"></p>
+  <p class="rv in" style="margin-top:20px"><a class="btn" href="index.html#qualify">Check my options</a></p>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <div><span style="color:var(--ink);font-weight:600">Jake Yeo</span><br><span data-agency></span> · CEA Reg. <span data-reg></span></div>
+  <div><a data-wa href="#">WhatsApp</a> · <a data-mail href="#">Email</a></div>
+  <div>© <span id="yr"></span> Jake Yeo. Figures are illustrative and not an offer or financial advice.</div>
+</div></footer>
+<script src="projects-data.js"></script>
+<script src="chart.js"></script>
+<script src="projects.js"></script>
+<script>
+const S=window.SITE;
+document.querySelectorAll('[data-agency]').forEach(e=>e.textContent=S.agency);
+document.querySelectorAll('[data-reg]').forEach(e=>e.textContent=S.regNo);
+document.querySelectorAll('[data-wa]').forEach(a=>a.href='https://wa.me/'+S.whatsapp);
+document.querySelector('[data-mail]').href='mailto:'+S.email;
+document.getElementById('yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
