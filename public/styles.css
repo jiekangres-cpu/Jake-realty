@@ -383,3 +383,8 @@ i.mo{background:#e2cf9c}i.mn{background:#4a6a9c}
 .mleg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
 .mreg h4{margin:18px 0 4px;font-size:.95rem}
 .mstats .fine{margin:12px 0 0}
+
+button.mrow{width:100%;background:none;border:0;border-radius:8px;padding:5px 6px;margin:2px -6px;font:inherit;color:inherit;text-align:left;cursor:pointer;width:calc(100% + 12px)}
+button.mrow:hover{background:#f6f2e9}
+button.mrow.sel{background:#efe6cf;outline:1px solid #d8c48a}
+button.mrow:focus-visible{outline:2px solid var(--gold,#946a22)}
