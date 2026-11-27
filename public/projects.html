@@ -5,21 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Project by Project Analysis | Jake Yeo</title>
 <meta name="description" content="Asking vs sold price per sq ft for 500+ large Singapore condos, with price and volume charts by project, district and region.">
-<link rel="stylesheet" href="styles.css?v=20261139">
+<link rel="stylesheet" href="styles.css?v=20261142">
 <script src="config.js"></script>
 </head>
 <body>
 <header class="nav"><div class="wrap">
   <a class="logo" href="index.html">JAKE <span>YEO</span></a>
-  <nav class="mnav"><a class="btn ghost sm" href="index.html#projects">Back to summary</a> <a class="btn sm" href="index.html#qualify">Check my options</a></nav>
+  <nav class="mnav"><a class="btn ghost sm" href="index.html#projects">Back</a> <a class="btn sm" href="index.html#qualify">Check my options</a></nav>
 </div></header>
 <main>
 <section class="screen alt" id="projects"><div class="wrap">
-  <div class="eyebrow rv in">Large condos</div>
+  <div class="eyebrow rv in">All private projects</div>
   <h2 class="rv in">Project by project analysis</h2>
-  <p class="lead rv in" style="margin-bottom:0">Pick any large condo to see its price per sq ft against its district and planning region, with the volume of new and open market sales behind it.</p>
+  <p class="lead rv in" style="margin-bottom:0">Pick any of the <span id="pjN">2,790</span> existing private projects, condos, executive condominiums and landed estates, to see its price per sq ft against its district and planning region, with the volume of new and open market sales behind it.</p>
   <div class="mstats rv in" id="pjStats" hidden></div>
-  <div class="tiles rv in" id="pjTiles"></div>
   <div class="pjfind rv in"><label for="pjFind">Find a project</label><input type="search" id="pjFind" placeholder="Type a condo name, e.g. Treasure at Tampines" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="pjFindList"><ul id="pjFindList" role="listbox" hidden></ul></div>
   <div class="chartcard pjchart rv in" id="pjChartCard">
     <div class="pjch"><div><h3 id="pjTitle">Project chart</h3><p class="fine" id="pjSub" style="margin:2px 0 0"></p></div></div>
@@ -34,9 +33,9 @@
   </div>
   <div class="runs rv in" id="pjTable">
     <h3>Project by project</h3>
-    <p class="fine" style="margin:0 0 10px">Tap a project to chart it above.</p>
-    <div class="pjtools"><input type="search" id="pjSearch" placeholder="Search a project" aria-label="Search a project" autocomplete="off"><select id="pjRegion" aria-label="Region"><option value="">All regions</option></select></div>
-    <div class="tblwrap"><table class="pjtbl"><thead><tr><th data-k="name">Project</th><th data-k="askPsf" class="n">Asking psf</th><th data-k="soldPsf" class="n">Sold psf</th><th data-k="premium" class="n on">Gap</th></tr></thead><tbody id="pjBody"></tbody></table></div>
+    <p class="fine" style="margin:0 0 10px">Tap a project to chart it above. Sorted by 2026 sales; tap a heading to re-sort.</p>
+    <div class="pjtools"><input type="search" id="pjSearch" placeholder="Search a project" aria-label="Search a project" autocomplete="off"><select id="pjRegion" aria-label="Region"><option value="">All regions</option></select><select id="pjType" aria-label="Property type"><option value="">All types</option><option value="strata">Condo or apartment</option><option value="ec">Executive condominium</option><option value="landed">Landed</option></select></div>
+    <div class="tblwrap"><table class="pjtbl"><thead><tr><th data-k="name">Project</th><th data-k="txns" class="n on" data-dir="▼">2026 sales</th><th data-k="soldPsf" class="n">Sold psf</th><th data-k="askPsf" class="n">Asking psf</th><th data-k="premium" class="n">Gap</th></tr></thead><tbody id="pjBody"></tbody></table></div>
     <p class="pjmore"><button type="button" id="pjMore" class="btn ghost">Show more</button></p>
     <p class="fine" id="pjCount"></p>
   </div>
@@ -51,6 +50,7 @@
 </div></footer>
 <script src="market-stats.js"></script>
 <script src="projects-data.js"></script>
+<script src="projects-rows.js"></script>
 <script src="chart.js"></script>
 <script src="projects.js"></script>
 <script>

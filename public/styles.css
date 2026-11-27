@@ -335,7 +335,7 @@ p.lead,.subtitle,.fine{max-width:none!important}
 @media(max-width:520px){
 .pjtbl thead tr{display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--line)}
 .pjtbl th{border:0;flex:1;text-align:center!important;padding:8px 2px}
-.pjtbl tbody tr{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);padding:10px 0 8px}
+.pjtbl tbody tr{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);padding:10px 0 8px}
 .pjtbl td{border:0;padding:2px 4px;text-align:left!important}
 .pjtbl td:first-child{grid-column:1/-1;padding-bottom:6px}
 .pjtbl td.n::before{content:attr(data-l);display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);font-weight:500}
@@ -388,3 +388,11 @@ button.mrow{width:100%;background:none;border:0;border-radius:8px;padding:5px 6p
 button.mrow:hover{background:#f6f2e9}
 button.mrow.sel{background:#efe6cf;outline:1px solid #d8c48a}
 button.mrow:focus-visible{outline:2px solid var(--gold,#946a22)}
+@media(max-width:520px){
+.pjtbl,.pjtbl thead,.pjtbl tbody{display:block;width:100%}
+.pjtbl tbody tr{grid-template-columns:repeat(4,minmax(0,1fr))}
+.pjtbl thead th:first-child{display:none}
+.pjtbl th{white-space:normal;font-size:.62rem;letter-spacing:.03em;min-width:0}
+.pjtbl td.n{white-space:normal}
+.pjtbl td.n::before{font-size:.6rem}
+}

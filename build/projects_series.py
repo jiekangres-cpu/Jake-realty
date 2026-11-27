@@ -1,25 +1,31 @@
-"""Builds per-project psf/volume series for the Projects chart.
-Outputs public/pj/<slug>.json (one per project in projects-data.js) and public/pj/segments.json (district and region lines).
-Run build/projects_data.py first, then this script (it adds slugs and periods to projects-data.js).
-Periods are half-years from 2017. Sale types: New Sale, and Open market = Resale + Sub Sale (the JSON 'vr' volume and the resale-only psf (second array) are open market).
+"""Builds the project table rows and per-project psf/volume series for projects.html.
+Covers ALL existing private projects in the fact table (Status blank: not en bloc, not gone), about 2,790.
+Run build/projects_data.py first (summary plus the PropertyGuru asking data), then this script.
+Outputs: public/pj/<slug>.json (one per project with sales since 2017), public/pj/segments*.json (district and region lines per category),
+public/projects-rows.js (window.PROJECTS.rows, loaded only on projects.html) and rewrites public/projects-data.js without rows (home page summary).
+Periods are half-years from 2017. Open market = Resale + Sub Sale. Table sold psf = median 2026 open market psf; gap only where there are listings and 5+ open market sales.
+Categories: strata (condo, apartment, mixed), ec (executive condominium), landed (terrace, semi-d, detached). Segment lines compare like with like.
 Bedroom filter uses Confirmed and Confirmed (stack) tags only (key 0 = all rows, whatever the tag)."""
-import json, re, os, numpy as np, pandas as pd
+import json, re, os, glob, numpy as np, pandas as pd
 ROOT="/Volumes/Crucial SSD/Claude AI/data/"
+YEAR=2026; MIN_GAP=5
 d=pd.read_parquet(ROOT+"Transactions-data/Mirror/Total Transactions.parquet",columns=['Project Name','Unit Price ($ PSF)','Sale Date','Type of Sale','Property Type','Postal District','Planning Region','Size (Bedrooms)','Bedroom Status'])
 d=d[d['Type of Sale'].isin(['New Sale','Resale','Sub Sale'])&d['Unit Price ($ PSF)'].notna()&(d['Unit Price ($ PSF)']>0)].copy()
 d=d[d['Sale Date']>='2017-01-01']
 d['p']=(d['Sale Date'].dt.year-2017)*2+(d['Sale Date'].dt.month>6).astype(int)
 NP=int(d['p'].max())+1
 LAB=[f"{2017+p//2} H{p%2+1}" for p in range(NP)]
-d['pk']=d['Project Name'].str.upper().str.strip()
+nk=lambda s:re.sub(r'[^A-Z0-9]','',str(s).upper())
+d['nk']=d['Project Name'].map(nk)
 d['new']=(d['Type of Sale']=='New Sale')
-d['bed']=np.where(d['Bedroom Status'].isin(['Confirmed','Confirmed (stack)']),d['Size (Bedrooms)'].fillna(0).astype(int),-1)
-d['bed']=d['bed'].clip(upper=5)
+d['bed']=np.where(d['Bedroom Status'].isin(['Confirmed','Confirmed (stack)']),d['Size (Bedrooms)'].fillna(0).astype(int),-1).clip(max=5)
 d['dist']=d['Postal District'].astype(str).str.zfill(2)
-d['Region']=d['Planning Region'].astype(str).str.replace(' Region','',regex=False).str.replace('North East','North-East',regex=False)  # planning region (CCR/RCR/OCR is ambiguous in the master for boundary districts)
+REGMAP={'Central Region':'Central','East Region':'East','North East Region':'North-East','North Region':'North','West Region':'West'}
+d['Region']=d['Planning Region'].map(REGMAP)
+CAT={'Condominium':'strata','Apartment':'strata','Mixed Development':'strata','Executive Condominium':'ec','Terrace House':'landed','Semi-Detached House':'landed','Detached House':'landed'}
+d['cat']=d['Property Type'].map(CAT)
 BEDS=[0,1,2,3,4,5]
 def series(g):
-    """g: transactions of one group. Returns {b: {m: psf list}, ...} and volumes per bedroom."""
     out={}
     for b in BEDS:
         gb=g if b==0 else g[g['bed']==b]
@@ -32,40 +38,53 @@ def series(g):
         row['vn']=[int(nn.get(p,0)) for p in range(NP)]; row['vr']=[int(nr.get(p,0)) for p in range(NP)]
         out[b]=row
     return out
-def pack(s):  # compact: psf with new, psf resale-only, new volume, resale volume per bedroom key
-    return {str(b):[s[b][1],s[b][0],s[b]['vn'],s[b]['vr']] for b in BEDS}
+def pack(s): return {str(b):[s[b][1],s[b][0],s[b]['vn'],s[b]['vr']] for b in BEDS}
 os.makedirs("public/pj",exist_ok=True)
-# segments (strata private, ECs left out)
-seg=d[d['Property Type'].isin(['Condominium','Apartment'])]
-SEG={'periods':LAB,'district':{},'region':{}}
-for k,g in seg.groupby('dist'): SEG['district'][k]=pack(series(g))
-for k,g in seg.groupby('Region'): SEG['region'][k]=pack(series(g))
-open("public/pj/segments.json","w").write(json.dumps(SEG,separators=(',',':')))
+for f in glob.glob("public/pj/*.json"): os.remove(f)
+# segments per category (like with like)
+for cat,fn in (('strata','segments.json'),('ec','segments-ec.json'),('landed','segments-landed.json')):
+    seg=d[d['cat']==cat]; SEG={'periods':LAB,'district':{},'region':{}}
+    for k,g in seg.groupby('dist'): SEG['district'][k]=pack(series(g))
+    for k,g in seg.groupby('Region'): SEG['region'][k]=pack(series(g))
+    open("public/pj/"+fn,"w").write(json.dumps(SEG,separators=(',',':')))
 # projects
 js=open("public/projects-data.js").read(); P=json.loads(js[len("window.PROJECTS="):].rstrip().rstrip(';'))
-names=[r[0] for r in P['rows']]
+ci={k:i for i,k in enumerate(P['cols'])}
+ask={}
+for r in (P.get('rows') or []): ask[nk(r[ci['name']])]=r   # PropertyGuru asking data, scraped large condos
 ft=pd.read_excel(ROOT+"Fact_Table__Projects_with_MRT_distance_with_PSchool.xlsx")
-bypk={k:g for k,g in d.groupby('pk')}
-slugs={}; miss=[]; total=0
-for r in P['rows']:
-    name=r[0]; key=None
-    # original upper-case name: match on normalised key
-    nk=re.sub(r'[^A-Z0-9]','',name.upper())
-    cand=[k for k in bypk if re.sub(r'[^A-Z0-9]','',k)==nk]
-    if not cand: miss.append(name); continue
-    g=bypk[cand[0]]
-    slug=re.sub(r'[^a-z0-9]+','-',name.lower()).strip('-')
-    base=slug; i=2
-    while slug in slugs: slug=f"{base}-{i}"; i+=1
-    slugs[slug]=name
-    dist=g['dist'].mode().iloc[0]; reg=g['Region'].mode().iloc[0]
-    o={"name":name,"district":dist,"region":reg,"series":pack(series(g))}
-    s=json.dumps(o,separators=(',',':')); total+=len(s)
-    open(f"public/pj/{slug}.json","w").write(s)
-    r.append(slug)
-P['cols'].append('slug'); P['periods']=LAB
-for r in P['rows']:
-    if len(r)==10: r.append(None)
+ft=ft[ft['Status'].isna()].copy()
+def tc(s):
+    s=str(s).strip().title()
+    for a,b in ((" Of "," of "),(" At "," at "),(" And "," and "),(" The "," the "),("'S","'s"),(" Ec"," EC"),(" Ii"," II"),(" Iii"," III")): s=s.replace(a,b)
+    return re.sub(r"\b(Mrt|Nus|Ntu)\b",lambda g:g.group(1).upper(),s)
+bynk={k:g for k,g in d.groupby('nk')}
+slugs=set(); rows=[]; nopsales=0; total=0
+for _,f in ft.sort_values('Project Name').iterrows():
+    key=nk(f['Project Name']); g=bynk.get(key)
+    name=tc(f['Project Name']); a=ask.get(key)
+    reg=REGMAP.get(f['Planning Region'],''); dist=str(int(f['Postal District'])).zfill(2) if pd.notna(f['Postal District']) else ''
+    ten='Freehold' if re.search('Freehold|999',str(f['Freehold/Leasehold']),re.I) else '99-year'
+    cd=pd.to_numeric(f['Completion Date'],errors='coerce'); age=int(YEAR-cd) if pd.notna(cd) else None
+    units=int(f['Number of Units (Actual)']) if pd.notna(f['Number of Units (Actual)']) else None
+    cat=CAT.get(f['Property Type'],'strata'); slug=None; txns=0; sold=None
+    if g is not None:
+        cat=g['cat'].mode().iloc[0] if g['cat'].notna().any() else cat
+        dist=dist or g['dist'].mode().iloc[0]; reg=reg or (g['Region'].mode().iloc[0] if g['Region'].notna().any() else '')
+        slug=re.sub(r'[^a-z0-9]+','-',name.lower()).strip('-') or 'project'; base=slug; i=2
+        while slug in slugs: slug=f"{base}-{i}"; i+=1
+        slugs.add(slug)
+        s=json.dumps({"name":name,"cat":cat,"district":dist,"region":reg,"series":pack(series(g))},separators=(',',':')); total+=len(s)
+        open(f"public/pj/{slug}.json","w").write(s)
+        cur=g[(g['Sale Date'].dt.year==YEAR)&~g['new']]; txns=len(cur)
+        sold=int(round(cur['Unit Price ($ PSF)'].median())) if txns else None
+    else: nopsales+=1
+    listings=a[ci['listings']] if a else 0; askp=a[ci['askPsf']] if a else None
+    gap=round((askp/sold-1)*100,1) if (askp and sold and txns>=MIN_GAP) else None
+    rows.append([name,listings,askp,txns,sold,gap,reg,ten,age,units,slug,cat])
+cols=["name","listings","askPsf","txns","soldPsf","premium","region","tenure","age","units","slug","cat"]
+P.pop('rows',None); P['cols']=cols; P['periods']=LAB; P['all']=len(rows)
 open("public/projects-data.js","w").write("window.PROJECTS="+json.dumps(P,separators=(',',':'))+";\n")
-print("periods",NP,LAB[0],LAB[-1],"projects",len(slugs),"missing",len(miss),miss[:8],"avg bytes",total//max(1,len(slugs)),"seg",len(json.dumps(SEG))//1024,"KB")
-print("last sale",d['Sale Date'].max())
+open("public/projects-rows.js","w").write("window.PROJECTS.rows="+json.dumps(rows,separators=(',',':'))+";\n")
+print("projects",len(rows),"with charts",len(slugs),"no sales since 2017",nopsales,"avg bytes",total//max(1,len(slugs)))
+print("with asking",sum(1 for r in rows if r[2]),"with gap",sum(1 for r in rows if r[5] is not None),"with 2026 open market sales",sum(1 for r in rows if r[3]),"last sale",d['Sale Date'].max())

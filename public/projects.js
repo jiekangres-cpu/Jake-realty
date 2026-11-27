@@ -11,7 +11,7 @@ const tiles=[[D.projects.toLocaleString('en-SG'),'Large condos with 5+ resale sa
  [num(D.listings),'Current listings compared (duplicates removed)'],
  [sgn(D.median),'Median asking price vs 2026 resale psf'],
  [D.above+'%','Of projects asking above what sold this year']];
-tiles.forEach(t=>{const d=mk('div','tile');d.append(mk('b','',t[0]),mk('span','',t[1]));$('pjTiles').append(d)});
+if($('pjTiles')) tiles.forEach(t=>{const d=mk('div','tile');d.append(mk('b','',t[0]),mk('span','',t[1]));$('pjTiles').append(d)});
 
 // bar cards
 if($('pjCards')){
@@ -32,13 +32,16 @@ cards.forEach(c=>{
 if(!$('pjBody')) return;
 // table
 const C={}; D.cols.forEach((k,i)=>C[k]=i);
-let sortK='premium', dir=1, q='', reg='', shown=12;
+let sortK='txns', dir=-1, q='', reg='', typ='', shown=12;
+const CATL={strata:'Condo or apartment',ec:'Executive condominium',landed:'Landed'};
+if($('pjN')) $('pjN').textContent=num(D.rows.length);
+const Y_=String((D.periods&&D.periods.length?D.periods[D.periods.length-1]:'2026').slice(0,4));
 const regs=[...new Set(D.rows.map(r=>r[C.region]).filter(Boolean))].sort();
 regs.forEach(r=>{const o=mk('option','',r);o.value=r;$('pjRegion').append(o)});
 function rows(){
   const t=q.trim().toLowerCase();
-  let a=D.rows.filter(r=>(!reg||r[C.region]===reg)&&(!t||r[C.name].toLowerCase().includes(t)));
-  a.sort((x,y)=>{const A=x[C[sortK]],B=y[C[sortK]];return (typeof A==='string'?A.localeCompare(B):A-B)*dir});
+  let a=D.rows.filter(r=>(!reg||r[C.region]===reg)&&(!typ||r[C.cat]===typ)&&(!t||r[C.name].toLowerCase().includes(t)));
+  a.sort((x,y)=>{const A=x[C[sortK]],B=y[C[sortK]];if(A==null&&B==null)return 0;if(A==null)return 1;if(B==null)return -1;return (typeof A==='string'?A.localeCompare(B):A-B)*dir||y[C.txns]-x[C.txns]});
   return a;
 }
 function draw(){
@@ -47,25 +50,27 @@ function draw(){
     const tr=document.createElement('tr'),td=document.createElement('td');
     if(r[C.slug]){tr.className='pick';tr.tabIndex=0;tr.onclick=()=>pickProject(r[C.slug],true);tr.onkeydown=e=>{if(e.key==='Enter')pickProject(r[C.slug],true)}}
     td.append(mk('span','pn',r[C.name]));
-    const meta=[r[C.listings]+' listing'+(r[C.listings]>1?'s':''),r[C.txns]+' sales in 2026',r[C.region],r[C.tenure]==='Freehold'?'Freehold':'99-yr',r[C.age]!=null?r[C.age]+' yrs old':''].filter(Boolean).join(' · ');
+    const meta=[CATL[r[C.cat]],r[C.listings]?r[C.listings]+' listing'+(r[C.listings]>1?'s':''):'',r[C.region],r[C.tenure]==='Freehold'?'Freehold':'99-yr',r[C.age]!=null?r[C.age]+' yrs old':'',r[C.slug]?'':'No sales since 2017'].filter(Boolean).join(' · ');
     td.append(mk('small','',meta));
-    const g=mk('td','n g '+(r[C.premium]<=0?'dn':''),sgn(r[C.premium]));
-    const ta=mk('td','n','$'+num(r[C.askPsf])),tsd=mk('td','n','$'+num(r[C.soldPsf]));ta.dataset.l='Asking psf';tsd.dataset.l='Sold psf';g.dataset.l='Gap';
-    tr.append(td,ta,tsd,g);body.append(tr);
+    const dash='–', gv=r[C.premium];
+    const g=mk('td','n g '+(gv!=null&&gv<=0?'dn':''),gv!=null?sgn(gv):dash);
+    const ta=mk('td','n',r[C.askPsf]?'$'+num(r[C.askPsf]):dash),tsd=mk('td','n',r[C.soldPsf]?'$'+num(r[C.soldPsf]):dash),tn=mk('td','n',num(r[C.txns]));ta.dataset.l='Asking psf';tsd.dataset.l='Sold psf';g.dataset.l='Gap';tn.dataset.l=Y_+' sales';
+    tr.append(td,tn,tsd,ta,g);body.append(tr);
   });
   $('pjMore').hidden=a.length<=shown;
   $('pjMore').textContent='Show more ('+Math.min(12,a.length-shown)+' of '+(a.length-shown)+' left)';
-  $('pjCount').textContent=a.length?('Showing '+Math.min(shown,a.length)+' of '+a.length+' projects. Gap = median asking psf vs median 2026 resale psf; green means asking is at or below what sold.'):'No project matches that search.';
+  $('pjCount').textContent=a.length?('Showing '+Math.min(shown,a.length)+' of '+num(a.length)+' projects. Sold psf = median open market psf (resale and sub sales) in '+Y_+'. Gap = median asking psf vs sold psf, shown where the project has current listings and 5 or more open market sales; green means asking is at or below what sold.'):'No project matches that search.';
 }
 $('pjMore').onclick=()=>{shown+=12;draw()};
 $('pjSearch').oninput=e=>{q=e.target.value;shown=12;draw()};
 $('pjRegion').onchange=e=>{reg=e.target.value;shown=12;draw()};
+if($('pjType')) $('pjType').onchange=e=>{typ=e.target.value;shown=12;draw()};
 document.querySelectorAll('.pjtbl th').forEach(th=>th.onclick=()=>{
-  const k=th.dataset.k; if(sortK===k) dir=-dir; else {sortK=k;dir=1}
+  const k=th.dataset.k; if(sortK===k) dir=-dir; else {sortK=k;dir=(k==='name'?1:-1)}
   document.querySelectorAll('.pjtbl th').forEach(x=>x.classList.toggle('on',x===th));
   th.dataset.dir=dir>0?'▲':'▼'; shown=12; draw();
 });
-$('pjFine').textContent='Asking prices: PropertyGuru for-sale listings, collected '+D.asof+'. Sold prices: URA resale transactions (apartments and condos) in 2026 so far. Asking prices are what sellers want, not what buyers pay, and a project’s gap moves with its unit mix, so treat it as a guide. Projects with fewer than 5 resale sales this year are left out so one sale cannot set the gap.';
+$('pjFine').textContent='Every existing private project (en bloc and demolished ones are left out), including executive condominiums and landed estates. Asking prices: PropertyGuru for-sale listings of larger completed condos, collected '+D.asof+'; other projects show sold prices only. Sold prices: URA transactions in '+Y_+' so far. Asking prices are what sellers want, not what buyers pay, and a project’s gap moves with its unit mix, so treat it as a guide.';
 draw();
 
 // market stats: transactions for the year so far, against the same dates in earlier years
@@ -108,16 +113,16 @@ const NS='http://www.w3.org/2000/svg';
 const sv=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.append(e);return e};
 const CL={proj:'#946a22',dist:'#1f6fb2',reg:'#7d7a72',res:'#e2cf9c',nw:'#4a6a9c'};
 const BEDS=[[0,'All'],[1,'1 bed'],[2,'2 bed'],[3,'3 bed'],[4,'4 bed'],[5,'5+ bed']];
-let proj=null, seg=null, bed=0, inclNew=true, segP=null;
+let proj=null, seg=null, bed=0, inclNew=true, segP={};
 const cache={};
 const lastLab=i=>PER[i]+(i===NP-1?' (to Oct)':'');
 const getJSON=u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()});
 async function pickProject(slug,scroll){
   try{
-    if(!segP) segP=getJSON('pj/segments.json');
-    seg=await segP;
     proj=cache[slug]||(cache[slug]=await getJSON('pj/'+slug+'.json'));
     proj.slug=slug;
+    const sf={strata:'segments',ec:'segments-ec',landed:'segments-landed'}[proj.cat||'strata'];
+    seg=await (segP[sf]||(segP[sf]=getJSON('pj/'+sf+'.json')));
     const row=D.rows.find(r=>r[C.slug]===slug); proj.row=row;
     buildBeds(); renderChart();
     if(scroll) $('pjChartCard').scrollIntoView({behavior:'smooth',block:'start'});
@@ -138,10 +143,10 @@ $('pjNew').onchange=e=>{inclNew=e.target.checked;if(proj)renderChart()};
 function renderChart(){
   const S=proj.series[bed], dS=(seg.district[proj.district]||{})[bed], rS=(seg.region[proj.region]||{})[bed];
   const k=inclNew?0:1, P=S[k], DD=dS?dS[k]:[], RR=rS?rS[k]:[], VN=S[2], VR=S[3];
-  const dLab='District '+Number(proj.district), rLab=proj.region+' Region';
+  const cl={ec:' (ECs)',landed:' (landed)'}[proj.cat]||'', dLab='District '+Number(proj.district)+cl, rLab=proj.region+' Region'+cl;
   $('pjTitle').textContent=proj.name;
   const r=proj.row;
-  $('pjSub').textContent=[dLab,rLab,r&&r[C.units]?num(r[C.units])+' units':'',r&&r[C.age]!=null?r[C.age]+' yrs old':'',bed?BEDS[bed][1]+' units':'All unit sizes',inclNew?'New and open market':'Open market only'].filter(Boolean).join(' · ');
+  $('pjSub').textContent=[dLab,rLab,r&&r[C.units]&&r[C.cat]!=='landed'?num(r[C.units])+' units':'',r&&r[C.age]!=null?r[C.age]+' yrs old':'',bed?BEDS[bed][1]+' units':'All unit sizes',inclNew?'New and open market':'Open market only'].filter(Boolean).join(' · ');
   const lg=$('pjLegend'); lg.textContent='';
   const sw=(c,t,kind)=>{const s=mk('span');const i=mk('i','lg '+kind);i.style.background=kind==='sq'?c:'';i.style.borderColor=c;if(kind==='line')i.style.background=c;s.append(i,document.createTextNode(t));lg.append(s)};
   sw(CL.proj,'This project','line');sw(CL.dist,dLab,'line');sw(CL.reg,rLab,'line');sw(CL.res,'Project open market sales','sq');if(inclNew)sw(CL.nw,'Project new sales','sq');
