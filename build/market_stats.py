@@ -11,7 +11,8 @@ for y in (Y-2,Y-1,Y):
     g=d[(d['Sale Date']>=f'{y}-01-01')&(d['Sale Date']<=last.replace(year=y))]
     years[y]={'new':int((g['Type of Sale']=='New Sale').sum()),'resale':int((g['Type of Sale']=='Resale').sum()),'sub':int((g['Type of Sale']=='Sub Sale').sum())}
 cur=d[(d['Sale Date']>=f'{Y}-01-01')]
-reg=cur.assign(r=cur['Planning Region'].astype(str).str.replace(' Region','',regex=False).str.replace('North East','North-East',regex=False)).groupby('r').size().sort_values(ascending=False)
-out={'year':Y,'to':last.strftime('%-d %b'),'years':{str(k):v for k,v in years.items()},'region':[[k,int(v)] for k,v in reg.items()]}
+cur=cur.assign(r=cur['Planning Region'].astype(str).str.replace(' Region','',regex=False).str.replace('North East','North-East',regex=False),n=(cur['Type of Sale']=='New Sale'))
+reg=cur.groupby('r').agg(total=('n','size'),new=('n','sum')).sort_values('total',ascending=False)
+out={'year':Y,'to':last.strftime('%-d %b'),'years':{str(k):v for k,v in years.items()},'region':[[k,int(v.new),int(v.total-v.new)] for k,v in reg.iterrows()]}
 open("public/market-stats.js","w").write("window.MSTATS="+json.dumps(out,separators=(',',':'))+";\n")
 print(out)

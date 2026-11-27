@@ -1,1 +1,1 @@
-window.MSTATS={"year":2026,"to":"27 Oct","years":{"2024":{"new":3577,"resale":10079,"sub":1098},"2025":{"new":10159,"resale":10388,"sub":786},"2026":{"new":5765,"resale":9675,"sub":474}},"region":[["Central",7560],["West",2927],["East",2903],["North-East",2060],["North",464]]};
+window.MSTATS={"year":2026,"to":"27 Oct","years":{"2024":{"new":3577,"resale":10079,"sub":1098},"2025":{"new":10159,"resale":10388,"sub":786},"2026":{"new":5765,"resale":9675,"sub":474}},"region":[["Central",2494,5066],["West",1683,1244],["East",1035,1868],["North-East",446,1614],["North",107,357]]};
