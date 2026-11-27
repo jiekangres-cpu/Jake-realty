@@ -356,3 +356,12 @@ p.lead,.subtitle,.fine{max-width:none!important}
 .pjchart .tip{min-width:190px}
 .pjtl{display:flex;align-items:center;gap:6px;font-size:.84rem;margin-top:3px}.pjtl i{display:inline-block;width:9px;height:9px;border-radius:50%}.pjtl.muted{color:var(--mute);padding-left:15px}
 .pjtbl tr.pick{cursor:pointer}.pjtbl tr.pick:hover{background:#faf6ea}
+
+.pjfind{position:relative;margin:22px 0 14px}
+.pjfind label{display:block;font-size:.8rem;font-weight:600;color:var(--mute);margin-bottom:6px}
+.pjfind input{width:100%;font:inherit;font-size:1rem;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.pjfind ul{position:absolute;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.12);z-index:20}
+.pjfind li{padding:10px 12px;border-radius:7px;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.pjfind li:hover{background:var(--alt,#f3efe6)}
+.pjfind li small{color:var(--mute)}
+.pjfind li.none{cursor:default;color:var(--mute)}

@@ -163,4 +163,21 @@ function renderChart(){
 addEventListener('resize',()=>{if(proj)renderChart()});
 if(D.rows.length&&C.slug!=null){const top=D.rows.reduce((a,r)=>r[C.txns]>a[C.txns]?r:a,D.rows[0]); if(top[C.slug]) pickProject(top[C.slug],false);}
 
+
+// quick find: type a name, pick a suggestion, chart loads
+(function(){
+  const inp=$('pjFind'), ul=$('pjFindList'); if(!inp||C.slug==null) return;
+  const pool=D.rows.filter(r=>r[C.slug]);
+  function show(){
+    const t=inp.value.trim().toLowerCase(); ul.textContent='';
+    if(!t){ul.hidden=true;inp.setAttribute('aria-expanded','false');return}
+    const hit=pool.filter(r=>r[C.name].toLowerCase().includes(t)).sort((a,b)=>(a[C.name].toLowerCase().startsWith(t)?0:1)-(b[C.name].toLowerCase().startsWith(t)?0:1)||b[C.txns]-a[C.txns]).slice(0,8);
+    if(!hit.length){const li=mk('li','none','No large condo matches that name');ul.append(li)}
+    hit.forEach(r=>{const li=mk('li','',r[C.name]);li.setAttribute('role','option');li.append(mk('small','',r[C.region]||''));
+      li.onmousedown=e=>{e.preventDefault();inp.value=r[C.name];ul.hidden=true;pickProject(r[C.slug],false);$('pjChartCard').scrollIntoView({behavior:'smooth',block:'nearest'})};ul.append(li)});
+    ul.hidden=false;inp.setAttribute('aria-expanded','true');
+  }
+  inp.oninput=show; inp.onfocus=show; inp.onblur=()=>{ul.hidden=true};
+  inp.onkeydown=e=>{if(e.key==='Enter'){const f=ul.querySelector('li:not(.none)');if(f)f.onmousedown(e)}};
+})();
 })();

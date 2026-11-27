@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Project by Project Analysis | Jake Yeo</title>
 <meta name="description" content="Asking vs sold price per sq ft for 500+ large Singapore condos, with price and volume charts by project, district and region.">
-<link rel="stylesheet" href="styles.css?v=20261135">
+<link rel="stylesheet" href="styles.css?v=20261136">
 <script src="config.js"></script>
 </head>
 <body>
@@ -19,6 +19,7 @@
   <h2 class="rv in">Project by project analysis</h2>
   <p class="lead rv in" style="margin-bottom:0">Pick any large condo to see its price per sq ft against its district and planning region, with the volume of new and open market sales behind it.</p>
   <div class="tiles rv in" id="pjTiles"></div>
+  <div class="pjfind rv in"><label for="pjFind">Find a project</label><input type="search" id="pjFind" placeholder="Type a condo name, e.g. Treasure at Tampines" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="pjFindList"><ul id="pjFindList" role="listbox" hidden></ul></div>
   <div class="chartcard pjchart rv in" id="pjChartCard">
     <div class="pjch"><div><h3 id="pjTitle">Project chart</h3><p class="fine" id="pjSub" style="margin:2px 0 0"></p></div></div>
     <div class="pjfilters">
