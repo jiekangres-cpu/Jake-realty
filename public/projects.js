@@ -67,6 +67,36 @@ document.querySelectorAll('.pjtbl th').forEach(th=>th.onclick=()=>{
 });
 $('pjFine').textContent='Asking prices: PropertyGuru for-sale listings, collected '+D.asof+'. Sold prices: URA resale transactions (apartments and condos) in 2026 so far. Asking prices are what sellers want, not what buyers pay, and a project’s gap moves with its unit mix, so treat it as a guide. Projects with fewer than 5 resale sales this year are left out so one sale cannot set the gap.';
 draw();
+
+// market stats: transactions for the year so far, against the same dates in earlier years
+(function(){
+  const M=window.MSTATS, box=$('pjStats'); if(!M||!box) return;
+  const ys=Object.keys(M.years).sort(), Y=String(M.year), tot=y=>M.years[y].new+M.years[y].resale+M.years[y].sub, open=y=>M.years[y].resale+M.years[y].sub;
+  const cur=tot(Y), prev=tot(ys[ys.length-2]), chg=(cur/prev-1)*100;
+  box.append(mk('div','eyebrow','Transactions, '+Y+' so far'));
+  const top=mk('div','mtop'), big=mk('div','mbig');
+  big.append(mk('b','',num(cur)),mk('span','','private condo and apartment sales, 1 Jan to '+M.to));
+  const vs=mk('p','mvs','');vs.append(mk('b',chg<0?'dn':'up',sgn(chg)),document.createTextNode(' vs the same dates in '+ys[ys.length-2]+' ('+num(prev)+')'));
+  top.append(big,vs);box.append(top);
+  const mx=Math.max.apply(null,ys.map(tot)), bars=mk('div','mbars');
+  ys.forEach(y=>{
+    const r=mk('div','mrow'+(y===Y?' cur':'')), s=M.years[y];
+    const tr=mk('div','mtrack'), w=tot(y)/mx*100;
+    [[open(y),'mo'],[s.new,'mn']].forEach(p=>{const i=mk('i',p[1]);i.style.width=(p[0]/tot(y)*w)+'%';tr.append(i)});
+    r.append(mk('span','my',y),tr,mk('b','',num(tot(y))));bars.append(r);
+  });
+  box.append(bars);
+  const lg=mk('div','mleg');
+  [['mo','Open market (resale and sub sales)'],['mn','New sales']].forEach(p=>{const s=mk('span');s.append(mk('i',p[0]),document.createTextNode(p[1]));lg.append(s)});
+  box.append(lg);
+  const cur2=M.years[Y];
+  box.append(mk('p','fine','New sales '+num(cur2.new)+' · open market '+num(open(Y))+' ('+num(cur2.resale)+' resale, '+num(cur2.sub)+' sub sales). Earlier years use the same Jan to '+M.to+' window. Executive condominiums and landed homes are not included. Source: URA.'));
+  const rg=mk('div','mreg');rg.append(mk('h4','',Y+' by planning region'));
+  const rm=Math.max.apply(null,M.region.map(r=>r[1]));
+  M.region.forEach(r=>{const row=mk('div','mrow'),t=mk('div','mtrack'),i=mk('i','mo');i.style.width=(r[1]/rm*100)+'%';t.append(i);row.append(mk('span','my',r[0]),t,mk('b','',num(r[1])));rg.append(row)});
+  box.append(rg);
+  box.hidden=false;
+})();
 // ---- project chart: 3 psf lines (project, district, region) + stacked new/resale volume bars
 const PER=D.periods||[], NP=PER.length;
 const NS='http://www.w3.org/2000/svg';
