@@ -15,7 +15,7 @@ tiles.forEach(t=>{const d=mk('div','tile');d.append(mk('b','',t[0]),mk('span',''
 
 // bar cards
 if($('pjCards')){
-const cards=[['By region',D.region,'Planning region'],['By tenure',D.tenure,''],['By age of the building',D.age,''],['By bedrooms',D.beds,'Same project and bedroom count']];
+const cards=[['By region',D.region,'Planning region'],['By tenure',D.tenure,''],['By age of the building',D.age,'']];
 const max=Math.max.apply(null,cards.flatMap(c=>c[1].map(r=>r[2])));
 cards.forEach(c=>{
   const card=mk('div','pjc');card.append(mk('h3','',c[0]));
