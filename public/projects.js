@@ -73,39 +73,66 @@ document.querySelectorAll('.pjtbl th').forEach(th=>th.onclick=()=>{
 $('pjFine').textContent='Every existing private project (en bloc and demolished ones are left out), including executive condominiums and landed estates. Asking prices: PropertyGuru for-sale listings of larger completed condos, collected '+D.asof+'; other projects show sold prices only. Sold prices: URA transactions in '+Y_+' so far. Asking prices are what sellers want, not what buyers pay, and a project’s gap moves with its unit mix, so treat it as a guide.';
 draw();
 
-// market stats: transactions for the year so far, against the same dates in earlier years
+// market stats: transactions by year (full years, current year to date), split open market vs new, with a planning region breakdown
 (function(){
   const M=window.MSTATS, box=$('pjStats'); if(!M||!box) return;
-  const ys=Object.keys(M.years).sort(), Y=String(M.year), tot=y=>M.years[y].new+M.years[y].resale+M.years[y].sub, open=y=>M.years[y].resale+M.years[y].sub;
-  const cur=tot(Y), prev=tot(ys[ys.length-2]), chg=(cur/prev-1)*100;
-  box.append(mk('div','eyebrow','Transactions, '+Y+' so far'));
-  const top=mk('div','mtop'), big=mk('div','mbig');
-  big.append(mk('b','',num(cur)),mk('span','','private condo and apartment sales, 1 Jan to '+M.to));
-  const vs=mk('p','mvs','');vs.append(mk('b',chg<0?'dn':'up',sgn(chg)),document.createTextNode(' vs the same dates in '+ys[ys.length-2]+' ('+num(prev)+')'));
-  top.append(big,vs);box.append(top);
-  const mx=Math.max.apply(null,ys.map(tot)), bars=mk('div','mbars');
-  ys.forEach(y=>{
-    const r=mk('div','mrow'+(y===Y?' cur':'')), s=M.years[y];
-    const tr=mk('div','mtrack'), w=tot(y)/mx*100;
-    [[open(y),'mo'],[s.new,'mn']].forEach(p=>{const i=mk('i',p[1]);i.style.width=(p[0]/tot(y)*w)+'%';tr.append(i)});
-    r.append(mk('span','my',y),tr,mk('b','',num(tot(y))));bars.append(r);
-  });
-  box.append(bars);
-  const lg=mk('div','mleg');
-  [['mo','Open market (resale and sub sales)'],['mn','New sales']].forEach(p=>{const s=mk('span');s.append(mk('i',p[0]),document.createTextNode(p[1]));lg.append(s)});
-  box.append(lg);
-  const cur2=M.years[Y];
-  box.append(mk('p','fine','New sales '+num(cur2.new)+' · open market '+num(open(Y))+' ('+num(cur2.resale)+' resale, '+num(cur2.sub)+' sub sales). Earlier years use the same Jan to '+M.to+' window. Executive condominiums and landed homes are not included. Source: URA.'));
-  const rg=mk('div','mreg');rg.append(mk('h4','',Y+' by planning region'),mk('p','fine','Tap a region to filter the project table below.'));
-  const rm=Math.max.apply(null,M.region.map(r=>r[1]+r[2]));
-  M.region.forEach(r=>{const tot=r[1]+r[2],row=mk('button','mrow pick'),t=mk('div','mtrack');row.type='button';row.dataset.r=r[0];
-    row.onclick=()=>{const on=reg===r[0];reg=on?'':r[0];shown=12;$('pjRegion').value=reg;draw();rg.querySelectorAll('.mrow').forEach(x=>x.classList.toggle('sel',x.dataset.r===reg));if(!on)$('pjTable').scrollIntoView({behavior:'smooth',block:'start'})};
-    [[r[2],'mo'],[r[1],'mn']].forEach(p=>{const i=mk('i',p[1]);i.style.width=(p[0]/rm*100)+'%';t.append(i)});
-    row.append(mk('span','my',r[0]),t,mk('b','',num(tot)));row.title=r[0]+': '+num(r[2])+' open market, '+num(r[1])+' new';rg.append(row)});
-  const rl=mk('p','fine','');rl.textContent=M.region.map(r=>r[0]+' '+num(r[2])+' open market, '+num(r[1])+' new').join(' · ');
-  rg.append(rl);
-  box.append(rg);
-  box.hidden=false;
+  const ys=Object.keys(M.years).sort(), CUR=String(M.year);
+  let yr=CUR, ty='all'; // ty: all | open | new
+  const nw=y=>M.years[y].new, op=y=>M.years[y].resale+M.years[y].sub;
+  const cnt=(n,o)=>ty==='new'?n:ty==='open'?o:n+o;
+  const TL={all:'',open:' (open market)',new:' (new sales)'};
+  const per=y=>y===CUR?'1 Jan to '+M.to+' '+y:'1 Jan to 31 Dec '+y;
+  function segs(track,n,o,scale,pickYear){
+    [['open',o,'mo'],['new',n,'mn']].forEach(p=>{
+      if(ty!=='all'&&ty!==p[0]) return;
+      const i=mk('i',p[2]+' seg'+(ty===p[0]?' sel':'')); i.style.width=(p[1]/scale*100)+'%'; i.dataset.t=p[0];
+      i.title=(p[0]==='open'?'Open market ':'New sales ')+num(p[1])+' (tap to '+(ty===p[0]?'show both':'show only this')+')';
+      i.setAttribute('role','button'); i.tabIndex=0;
+      const go=e=>{e.stopPropagation();ty=(ty===p[0]?'all':p[0]);if(pickYear)yr=pickYear;render()};
+      i.onclick=go; i.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go(e)}};
+      track.append(i);
+    });
+  }
+  function render(){
+    box.textContent='';
+    const Yv=M.years[yr], total=cnt(nw(yr),op(yr));
+    box.append(mk('div','eyebrow','Transactions, '+(yr===CUR?yr+' so far':yr)+TL[ty]));
+    const top=mk('div','mtop'), big=mk('div','mbig');
+    big.append(mk('b','',num(total)),mk('span','','private condo and apartment sales, '+per(yr)));
+    top.append(big);box.append(top);
+    // type filter
+    const tp=mk('div','mtype'); tp.setAttribute('role','group');tp.setAttribute('aria-label','Sale type');
+    [['all','All sales'],['open','Open market'],['new','New sales']].forEach(p=>{const b=mk('button','pjchip'+(ty===p[0]?' on':''),p[1]);b.type='button';
+      if(p[0]==='open')b.prepend(mk('i','sw mo'));if(p[0]==='new')b.prepend(mk('i','sw mn'));
+      b.onclick=()=>{ty=p[0];render()};tp.append(b)});
+    box.append(tp);
+    // year bars (2024 and 2025 are full years)
+    const sc=Math.max.apply(null,ys.map(y=>cnt(nw(y),op(y)))), bars=mk('div','mbars');
+    ys.forEach(y=>{
+      const r=mk('div','mrow pick'+(y===yr?' cur':'')), t=mk('div','mtrack');
+      r.setAttribute('role','button'); r.tabIndex=0; r.title='Show '+y+' by planning region';
+      r.onclick=()=>{yr=y;render()}; r.onkeydown=e=>{if(e.key==='Enter'){yr=y;render()}};
+      segs(t,nw(y),op(y),sc,y);
+      r.append(mk('span','my',y===CUR?y+' YTD':y),t,mk('b','',num(cnt(nw(y),op(y)))));bars.append(r);
+    });
+    box.append(bars);
+    box.append(mk('p','fine','Tap a year to see it by planning region. Tap the tan or blue part of a bar to show only open market (resale and sub sales) or only new sales; tap again to show both. 2024 and 2025 are full calendar years, '+CUR+' runs to '+M.to+'.'));
+    box.append(mk('p','fine','New sales '+num(nw(yr))+' · open market '+num(op(yr))+' ('+num(Yv.resale)+' resale, '+num(Yv.sub)+' sub sales). Executive condominiums and landed homes are not included. Source: URA.'));
+    // regions for the chosen year
+    const rg=mk('div','mreg');rg.append(mk('h4','',yr+' by planning region'+TL[ty]),mk('p','fine','Tap a region to filter the project table below.'));
+    const rm=Math.max.apply(null,Yv.region.map(r=>cnt(r[1],r[2])))||1;
+    Yv.region.forEach(r=>{
+      const row=mk('div','mrow pick'+(reg===r[0]?' sel':'')),t=mk('div','mtrack');
+      row.setAttribute('role','button');row.tabIndex=0;row.dataset.r=r[0];
+      const go=()=>{const on=reg===r[0];reg=on?'':r[0];shown=12;$('pjRegion').value=reg;draw();rg.querySelectorAll('.mrow').forEach(x=>x.classList.toggle('sel',x.dataset.r===reg));if(!on)$('pjTable').scrollIntoView({behavior:'smooth',block:'start'})};
+      row.onclick=go;row.onkeydown=e=>{if(e.key==='Enter')go()};
+      segs(t,r[1],r[2],rm);
+      row.append(mk('span','my',r[0]),t,mk('b','',num(cnt(r[1],r[2]))));row.title=r[0]+': '+num(r[2])+' open market, '+num(r[1])+' new';rg.append(row);
+    });
+    box.append(rg);
+    box.hidden=false;
+  }
+  render();
 })();
 // ---- project chart: 3 psf lines (project, district, region) + stacked new/resale volume bars
 const PER=D.periods||[], NP=PER.length;
