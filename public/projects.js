@@ -63,7 +63,7 @@ function draw(){
 }
 $('pjMore').onclick=()=>{shown+=12;draw()};
 $('pjSearch').oninput=e=>{q=e.target.value;shown=12;draw()};
-$('pjRegion').onchange=e=>{reg=e.target.value;shown=12;draw()};
+$('pjRegion').onchange=e=>{reg=e.target.value;shown=12;draw();if(window.pjSyncRegion)window.pjSyncRegion()};
 if($('pjType')) $('pjType').onchange=e=>{typ=e.target.value;shown=12;draw()};
 document.querySelectorAll('.pjtbl th').forEach(th=>th.onclick=()=>{
   const k=th.dataset.k; if(sortK===k) dir=-dir; else {sortK=k;dir=(k==='name'?1:-1)}
@@ -73,10 +73,12 @@ document.querySelectorAll('.pjtbl th').forEach(th=>th.onclick=()=>{
 $('pjFine').textContent='Every existing private project (en bloc and demolished ones are left out), including executive condominiums and landed estates. Asking prices: PropertyGuru for-sale listings of larger completed condos, collected '+D.asof+'; other projects show sold prices only. Sold prices: URA transactions in '+Y_+' so far. Asking prices are what sellers want, not what buyers pay, and a project’s gap moves with its unit mix, so treat it as a guide.';
 draw();
 
+const NS='http://www.w3.org/2000/svg';
+const sv=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.append(e);return e};
 // market stats: transactions by year (full years, current year to date), split open market vs new, with a planning region breakdown
 (function(){
   const M=window.MSTATS, box=$('pjStats'); if(!M||!box) return;
-  const ys=Object.keys(M.years).sort(), CUR=String(M.year);
+  const MIN_N=8, ys=Object.keys(M.years).sort(), CUR=String(M.year);
   let yr=CUR, ty='all'; // ty: all | open | new
   const nw=y=>M.years[y].new, op=y=>M.years[y].resale+M.years[y].sub;
   const cnt=(n,o)=>ty==='new'?n:ty==='open'?o:n+o;
@@ -119,25 +121,71 @@ draw();
     box.append(mk('p','fine','Tap a year to see it by planning region. Tap the tan or blue part of a bar to show only open market (resale and sub sales) or only new sales; tap again to show both. 2024 and 2025 are full calendar years, '+CUR+' runs to '+M.to+'.'));
     box.append(mk('p','fine','New sales '+num(nw(yr))+' · open market '+num(op(yr))+' ('+num(Yv.resale)+' resale, '+num(Yv.sub)+' sub sales). Executive condominiums and landed homes are not included. Source: URA.'));
     // regions for the chosen year
-    const rg=mk('div','mreg');rg.append(mk('h4','',yr+' by planning region'+TL[ty]),mk('p','fine','Tap a region to filter the project table below.'));
+    const rg=mk('div','mreg');rg.append(mk('h4','',yr+' by planning region'+TL[ty]),mk('p','fine','Tap a region to see its price range (top end, median, bottom end) in the chart above and filter the project table below.'));
     const rm=Math.max.apply(null,Yv.region.map(r=>cnt(r[1],r[2])))||1;
     Yv.region.forEach(r=>{
       const row=mk('div','mrow pick'+(reg===r[0]?' sel':'')),t=mk('div','mtrack');
       row.setAttribute('role','button');row.tabIndex=0;row.dataset.r=r[0];
-      const go=()=>{const on=reg===r[0];reg=on?'':r[0];shown=12;$('pjRegion').value=reg;draw();rg.querySelectorAll('.mrow').forEach(x=>x.classList.toggle('sel',x.dataset.r===reg));if(!on)$('pjTable').scrollIntoView({behavior:'smooth',block:'start'})};
+      const go=()=>{reg=reg===r[0]?'':r[0];shown=12;$('pjRegion').value=reg;draw();render()};
       row.onclick=go;row.onkeydown=e=>{if(e.key==='Enter')go()};
       segs(t,r[1],r[2],rm);
       row.append(mk('span','my',r[0]),t,mk('b','',num(cnt(r[1],r[2]))));row.title=r[0]+': '+num(r[2])+' open market, '+num(r[1])+' new';rg.append(row);
     });
     box.append(rg);
     box.hidden=false;
+    market();
   }
+  // price chart that follows the stats: all regions for the chosen year, or one region's top end, median and bottom end
+  const RC={'Central':'#946a22','West':'#1f6fb2','East':'#2f8f5b','North-East':'#a4442f','North':'#7b4fb0'};
+  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function market(){
+    const card=$('mkCard'), host=$('mkSvg'); if(!card||!M.psf) return;
+    const data=M.psf[yr][ty], regs=Object.keys(data), one=reg&&data[reg]?[reg]:null;
+    card.hidden=false; host.textContent=''; $('mkTip').hidden=true;
+    $('mkTitle').textContent=one?reg+' Region price range, '+yr+TL[ty]:'Price per sq ft by planning region, '+yr+TL[ty];
+    $('mkSub').textContent=one?'Top end, median and bottom end of price per sq ft, by month':'Median price per sq ft by month, one line per region';
+    const lg=$('mkLegend'); lg.textContent='';
+    const sw=(c,t,dash)=>{const s=mk('span'),i=mk('i','lg line');i.style.background=c;if(dash)i.style.opacity=.55;s.append(i,document.createTextNode(t));lg.append(s)};
+    const lines=one?[['Top end (90th percentile)','#1f6fb2',2,'5 4',2],['Median','#946a22',3,null,1],['Bottom end (10th percentile)','#7d7a72',2,'5 4',0]].map(l=>({n:l[0],c:l[1],w:l[2],d:l[3],v:data[reg].map(x=>x?x[l[4]]:null)})):regs.map(r=>({n:r,c:RC[r],w:2.4,d:null,v:data[r].map(x=>x?x[1]:null)}));
+    lines.forEach(l=>sw(l.c,l.n));
+    const vals=[].concat.apply([],lines.map(l=>l.v)).filter(v=>v!=null);
+    if(!vals.length){host.append(mk('p','fine','Not enough sales for this filter.'));$('mkNote').textContent='';return}
+    const W=Math.max(300,host.clientWidth||340), H=W<520?300:340, ml=46, mr=12, mt=10, mb=26, pw=W-ml-mr, ph=H-mt-mb, N=12;
+    let lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals); const pad=(hi-lo)*.08||100, step=[100,200,250,500,1000].find(x=>x>=(hi-lo+2*pad)/4)||1000;
+    lo=Math.max(0,Math.floor((lo-pad)/step)*step); hi=Math.ceil((hi+pad)/step)*step;
+    const X=i=>ml+(i+.5)*pw/N, Y=v=>mt+ph-(v-lo)/(hi-lo)*ph;
+    const svg=sv('svg',{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img','aria-label':$('mkTitle').textContent},host); svg.style.display='block';
+    for(let v=lo;v<=hi+1e-6;v+=step){const y=Y(v);sv('line',{x1:ml,x2:W-mr,y1:y,y2:y,stroke:'#e9e4d8','stroke-width':1},svg);const tx=sv('text',{x:ml-6,y:y+4,'text-anchor':'end','font-size':11,fill:'#6b6962'},svg);tx.textContent='$'+num(v)}
+    for(let i=0;i<N;i++){if(W>=520||i%2===0){const tx=sv('text',{x:X(i),y:H-8,'text-anchor':'middle','font-size':11,fill:'#6b6962'},svg);tx.textContent=MON[i]}}
+    if(one){ // shaded band between bottom end and top end
+      let top='',bot=[];data[reg].forEach((x,i)=>{if(x){top+=(top?'L':'M')+X(i)+' '+Y(x[2]);bot.push([X(i),Y(x[0])])}});
+      if(bot.length>1) sv('path',{d:top+bot.reverse().map(p=>'L'+p[0]+' '+p[1]).join('')+'Z',fill:'#1f6fb2',opacity:.08},svg);
+    }
+    lines.forEach(l=>{let d='',pen=false;l.v.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1);pen=true});
+      if(d) sv('path',{d,fill:'none',stroke:l.c,'stroke-width':l.w,'stroke-dasharray':l.d||'none','stroke-linejoin':'round','stroke-linecap':'round'},svg);
+      l.v.forEach((v,i)=>{if(v!=null)sv('circle',{cx:X(i),cy:Y(v),r:2.6,fill:'#fff',stroke:l.c,'stroke-width':1.6},svg)})});
+    const guide=sv('line',{y1:mt,y2:mt+ph,stroke:'#946a22','stroke-width':1,opacity:0,'stroke-dasharray':'3 3'},svg);
+    const ov=sv('rect',{x:ml,y:mt,width:pw,height:ph,fill:'transparent'},svg), tip=$('mkTip');
+    const show=ev=>{
+      const b=svg.getBoundingClientRect(), px=(ev.clientX-b.left)*(W/b.width), i=Math.min(N-1,Math.max(0,Math.floor((px-ml)/(pw/N))));
+      guide.setAttribute('x1',X(i));guide.setAttribute('x2',X(i));guide.setAttribute('opacity',1);
+      tip.textContent='';tip.append(mk('b','',MON[i]+' '+yr));
+      lines.forEach(l=>{const d=mk('div','pjtl'),dot=mk('i');dot.style.background=l.c;d.append(dot,document.createTextNode(l.n+': '+(l.v[i]==null?'too few sales':'$'+num(l.v[i])+' psf')));tip.append(d)});
+      const cnt2=one?(data[reg][i]?data[reg][i][3]:0):regs.reduce((a,r)=>a+(data[r][i]?data[r][i][3]:0),0);
+      tip.append(mk('div','pjtl muted',(one?'Sales that month: ':'Sales in regions shown: ')+num(cnt2)));
+      tip.hidden=false;const cb=card.getBoundingClientRect(),x=(X(i)*b.width/W)+(b.left-cb.left),tw=tip.offsetWidth;
+      tip.style.left=Math.max(4,Math.min(cb.width-tw-4,x-tw/2))+'px';tip.style.top=(b.top-cb.top+6)+'px';
+    };
+    ov.addEventListener('pointermove',show);ov.addEventListener('pointerdown',show);
+    ov.addEventListener('pointerleave',()=>{tip.hidden=true;guide.setAttribute('opacity',0)});
+    $('mkNote').textContent=(one?'Top end and bottom end are the 90th and 10th percentile of sold psf in the month: 1 in 10 sales went for more than the top end, 1 in 10 for less than the bottom end. ':'')+'Months with fewer than '+MIN_N+' sales are left blank. Condos and apartments only. Tap a year, a region or a colour in the bars above to change this chart.';
+  }
+  addEventListener('resize',()=>{if(!$('mkCard').hidden)market()});
+  window.pjSyncRegion=render;
   render();
 })();
 // ---- project chart: 3 psf lines (project, district, region) + stacked new/resale volume bars
 const PER=D.periods||[], NP=PER.length;
-const NS='http://www.w3.org/2000/svg';
-const sv=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.append(e);return e};
 const CL={proj:'#946a22',dist:'#1f6fb2',reg:'#7d7a72',res:'#e2cf9c',nw:'#4a6a9c'};
 const BEDS=[[0,'All'],[1,'1 bed'],[2,'2 bed'],[3,'3 bed'],[4,'4 bed'],[5,'5+ bed']];
 let proj=null, seg=null, bed=0, inclNew=true, segP={};

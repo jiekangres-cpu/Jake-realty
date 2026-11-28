@@ -3,7 +3,7 @@ Private condo + apartment transactions (ECs and landed left out), year to date, 
 Run weekly with the other project scripts, after the master parquet is refreshed."""
 import json, pandas as pd
 ROOT="/Volumes/Crucial SSD/Claude AI/data/"
-d=pd.read_parquet(ROOT+"Transactions-data/Mirror/Total Transactions.parquet",columns=['Sale Date','Type of Sale','Property Type','Planning Region'])
+d=pd.read_parquet(ROOT+"Transactions-data/Mirror/Total Transactions.parquet",columns=['Sale Date','Type of Sale','Property Type','Planning Region','Unit Price ($ PSF)'])
 d=d[d['Property Type'].isin(['Condominium','Apartment'])&d['Type of Sale'].isin(['New Sale','Resale','Sub Sale'])]
 last=d['Sale Date'].max(); Y=last.year
 d=d.assign(r=d['Planning Region'].astype(str).str.replace(' Region','',regex=False).str.replace('North East','North-East',regex=False),n=(d['Type of Sale']=='New Sale'))
@@ -14,6 +14,21 @@ for y in (Y-2,Y-1,Y):   # full calendar years, current year to the last sale dat
     rg=g.groupby('r').agg(t=('n','size'),n=('n','sum'))
     years[y]={'new':int(g['n'].sum()),'resale':int((g['Type of Sale']=='Resale').sum()),'sub':int((g['Type of Sale']=='Sub Sale').sum()),
       'region':[[k,int(rg.loc[k,'n']),int(rg.loc[k,'t']-rg.loc[k,'n'])] for k in ORDER if k in rg.index]}
-out={'year':Y,'to':last.strftime('%-d %b'),'years':{str(k):v for k,v in years.items()}}
+# monthly psf by region for each year and sale type: [bottom end (10th pct), median, top end (90th pct), sales]; null under MIN_N sales
+MIN_N=8
+dd=d[d['Unit Price ($ PSF)'].notna()&(d['Unit Price ($ PSF)']>0)]
+psf={}
+for y in (Y-2,Y-1,Y):
+    gy=dd[dd['Sale Date'].dt.year==y]
+    for ty,mask in (('all',gy['n']|~gy['n']),('open',~gy['n']),('new',gy['n'])):
+        gt=gy[mask]; res={}
+        for r in ORDER:
+            gr=gt[gt['r']==r]; arr=[]
+            for m in range(1,13):
+                v=gr[gr['Sale Date'].dt.month==m]['Unit Price ($ PSF)']
+                arr.append([int(round(v.quantile(.1))),int(round(v.median())),int(round(v.quantile(.9))),len(v)] if len(v)>=MIN_N else None)
+            res[r]=arr
+        psf.setdefault(str(y),{})[ty]=res
+out={'year':Y,'to':last.strftime('%-d %b'),'years':{str(k):v for k,v in years.items()},'psf':psf}
 open("public/market-stats.js","w").write("window.MSTATS="+json.dumps(out,separators=(',',':'))+";\n")
-print(out)
+print({k:v for k,v in out.items() if k!='psf'}); print(psf['2026']['all']['Central'][:3])
